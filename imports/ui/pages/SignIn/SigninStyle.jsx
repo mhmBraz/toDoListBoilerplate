@@ -31,6 +31,7 @@ const signinStyle = {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
+        marginBottom: 5
     },
     imageLogo: {
         backgroundColor: '#ff9937',
@@ -39,10 +40,9 @@ const signinStyle = {
         padding: 5,
     },
     containerButtonOptions: {
-        marginTop: 30,
+        marginTop: 10,
         display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+        flexDirection: 'column',
         alignItems: 'center',
     },
     containerSocialLoginButton: {

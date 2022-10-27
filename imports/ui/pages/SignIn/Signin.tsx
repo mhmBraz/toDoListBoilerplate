@@ -9,8 +9,10 @@ import Button from '@mui/material/Button';
 import SimpleForm from '/imports/ui/components/SimpleForm/SimpleForm';
 
 import { signinStyle } from './SigninStyle';
+import { IDefaultContainerProps } from '/imports/typings/BoilerplateDefaultTypings';
+import { Box } from '@mui/material';
 
-export const SignIn = (props: any) => {
+export const SignIn = (props: IDefaultContainerProps) => {
     const [redirectToReferer, setRedirectToReferer] = React.useState(false);
 
     const location = useLocation();
@@ -99,20 +101,19 @@ export const SignIn = (props: any) => {
 
     return (
         <>
-            <Container style={{ width: '100%', maxWidth: 400 }}>
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
+            <Container style={signinStyle.containerSignIn}>
+                <div style={signinStyle.subContainerSignIn}>
                     <div>
-                        <h2 style={signinStyle.labelAccessSystem}>
-                            <img src="/images/wireframe/logo.png" style={signinStyle.imageLogo} />
-                            <div>{'Acessar o sistema'}</div>
-                        </h2>
+                        <Box style={signinStyle.labelAccessSystem}>
+                            <Box>
+                                <h1>{'ToDo List'}</h1>
+                            </Box>
+                            <Box>
+                                <div>{'Boas-vindas a sua lista de tarefas'}</div>
+                                <div>{'Insira seu e-mail e senha para efetuar o login'}</div>
+                            </Box>
+                        </Box>
+
                         <SimpleForm
                             schema={{
                                 email: { type: 'String', label: 'Email', optional: false },
@@ -122,33 +123,36 @@ export const SignIn = (props: any) => {
                         >
                             <div>
                                 <TextField
-                                    label="Email"
                                     fullWidth={true}
                                     name="email"
                                     type="email"
                                     placeholder="Digite seu email"
                                 />
                                 <TextField
-                                    label="Senha"
                                     fullWidth={true}
                                     name="password"
                                     placeholder="Digite sua senha"
                                     type="password"
                                 />
-                                <div style={signinStyle.containerButtonOptions}>
-                                    <Button
-                                        id="forgotPassword"
-                                        color={'secondary'}
-                                        onClick={() => navigate('/recovery-password')}
-                                    >
-                                        {'Esqueci a minha senha'}
-                                    </Button>
-                                    <Button id="submit" variant={'outlined'} color={'primary'}>
-                                        {'Entrar'}
-                                    </Button>
-                                </div>
+                                <Box style={signinStyle.containerButtonOptions}>
+                                    <Box>
+                                        <Button id="submit" variant={'outlined'} color={'primary'}>
+                                            {'Entrar'}
+                                        </Button>
+                                    </Box>
+                                    <Box>
+                                        <Button
+                                            id="forgotPassword"
+                                            color={'secondary'}
+                                            onClick={() => navigate('/recovery-password')}
+                                        >
+                                            {'Esqueci a minha senha'}
+                                        </Button>
+                                    </Box>
+                                </Box>
                             </div>
                         </SimpleForm>
+
                         <div style={signinStyle.containerRouterSignUp}>
                             <Button
                                 id="newUser"
@@ -169,32 +173,6 @@ export const SignIn = (props: any) => {
                                 flexDirection: 'column',
                             }}
                         >
-                            <div key="divBtnGoogle" style={{ width: '100%' }}>
-                                <SocialLoginButton
-                                    key="btnGoogle"
-                                    iconClass={'google icon'}
-                                    onLogin={loginGoogle}
-                                    buttonText={'Login pelo Google'}
-                                    customCss={{
-                                        background: '#dd4b39',
-                                        width: '100%',
-                                        cursor: 'pointer',
-                                    }}
-                                />
-                            </div>
-                            <div key="divBtnFaceboook" style={{ width: '100%' }}>
-                                <SocialLoginButton
-                                    key="btnFaceboook"
-                                    iconClass={'facebook icon'}
-                                    onLogin={loginFacebook}
-                                    buttonText={'Login pelo Facebook'}
-                                    customCss={{
-                                        background: '#3B5998',
-                                        width: '100%',
-                                        cursor: 'pointer',
-                                    }}
-                                />
-                            </div>
                         </div>
                     </div>
                 </div>
