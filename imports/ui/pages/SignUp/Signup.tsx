@@ -30,7 +30,7 @@ export default class Signup extends React.Component {
     handleSubmit(doc) {
         const { email, password } = doc;
 
-        userprofileApi.insertNewUser({ email, username: email, password }, (err, r) => {
+        userprofileApi.insertNewUser({ email, username: email, password }, (err, r) => {            
             if (err) {
                 console.log('Login err', err);
                 this.props.showNotification({
@@ -40,7 +40,7 @@ export default class Signup extends React.Component {
                 });
             } else {
                 this.props.showNotification({
-                    type: 'sucess',
+                    type: 'success',
                     title: 'Cadastrado com sucesso!',
                     description: 'Registro de usuário realizado em nossa base de dados!',
                 });

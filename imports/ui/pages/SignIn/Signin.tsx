@@ -75,7 +75,7 @@ export const SignIn = (props: IDefaultContainerProps) => {
             }
         } else {
             setRedirectToReferer(true);
-            navigate('/');
+            navigate('/tarefas');
         }
     };
 

@@ -17,7 +17,7 @@ export const exampleRouterList: IRoute[] = [
         resources: [Recurso.EXAMPLE_CREATE],
     },
     {
-        path: '/example',
+        path: '/tarefas',
         component: ExampleContainer,
         isProtected: true,
         resources: [Recurso.EXAMPLE_VIEW],

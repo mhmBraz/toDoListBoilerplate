@@ -28,6 +28,7 @@ import { isMobile } from '/imports/libs/deviceVerify';
 import { showLoading } from '/imports/ui/components/Loading/Loading';
 import { ComplexTable } from '/imports/ui/components/ComplexTable/ComplexTable';
 import ToggleField from '/imports/ui/components/SimpleFormFields/ToggleField/ToggleField';
+import { Box } from '@mui/material';
 
 interface IExampleList extends IDefaultListProps {
     remove: (doc: IExample) => void;
@@ -56,8 +57,9 @@ const ExampleList = (props: IExampleList) => {
         searchBy,
         pageProperties,
         isMobile,
+        user
     } = props;
-
+    
     const idExample = shortid.generate();
 
     const onClick = (_event: React.SyntheticEvent, id: string) => {
@@ -78,21 +80,16 @@ const ExampleList = (props: IExampleList) => {
 
     const [text, setText] = React.useState(searchBy || '');
 
-    const change = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const change = (e: React.ChangeEvent<HTMLInputElement>) => {   
         clearFilter();
-        if (text.length !== 0 && e.target.value.length === 0) {
-            onSearch();
-        }
-        setText(e.target.value);
-    };
-    const keyPress = (_e: React.SyntheticEvent) => {
-        // if (e.key === 'Enter') {
-        if (text && text.trim().length > 0) {
-            onSearch(text.trim());
+
+        if (e.target.value.length !== 0) {
+            onSearch(e.target.value);
         } else {
             onSearch();
         }
-        // }
+
+        setText(e.target.value);
     };
 
     const click = (_e: any) => {
@@ -116,65 +113,25 @@ const ExampleList = (props: IExampleList) => {
     // @ts-ignore
     // @ts-ignore
     return (
-        <PageLayout title={'Lista de Exemplos'} actions={[]}>
-            <SearchDocField
-                api={userprofileApi}
-                subscribe={'getListOfusers'}
-                getOptionLabel={(doc) => doc.username || 'error'}
-                sort={{ username: 1 }}
-                textToQueryFilter={(textoPesquisa) => {
-                    textoPesquisa = textoPesquisa.replace(/[+[\\?()*]/g, '\\$&');
-                    return { username: new RegExp(textoPesquisa, 'i') };
-                }}
-                autocompleteOptions={{ noOptionsText: 'Não encontrado' }}
-                name={'userId'}
-                label={'Pesquisar com SearchDocField'}
-                onChange={handleSearchDocChange}
-                placeholder={'Todos'}
-                showAll={false}
-                key={'SearchDocKey'}
-            />
+        <PageLayout title={'Tarefas'} actions={[]}>
+            <Box>
+                <h1> Olá, {user.username}</h1>
+            </Box>
+            <Box>
+                <h4> Seus projetos muito mais organizados. Veja as tarefas adicionadas por seu time, por você e para você!</h4>
+            </Box>
 
-            {!isMobile && (
-                <ToggleField
-                    label={'Habilitar ComplexTable'}
-                    value={viewComplexTable}
-                    onChange={(evt: { target: { value: boolean } }) => {
-                        console.log('evt', evt, evt.target);
-                        setViewComplexTable(evt.target.value);
-                    }}
+            <>
+                <TextField
+                    name={'pesquisar'}
+                    label={'Pesquisar'}
+                    value={text}
+                    onChange={change}
+                    placeholder="Digite aqui o que deseja pesquisa..."
+                    action={{ icon: 'search', onClick: click }}
                 />
-            )}
-            {(!viewComplexTable || isMobile) && (
-                <>
-                    <TextField
-                        name={'pesquisar'}
-                        label={'Pesquisar'}
-                        value={text}
-                        onChange={change}
-                        onKeyPress={keyPress}
-                        placeholder="Digite aqui o que deseja pesquisa..."
-                        action={{ icon: 'search', onClick: click }}
-                    />
 
-                    <SimpleTable
-                        schema={_.pick(
-                            {
-                                ...exampleApi.schema,
-                                nomeUsuario: { type: String, label: 'Criado por' },
-                            },
-                            ['image', 'title', 'description', 'nomeUsuario']
-                        )}
-                        data={examples}
-                        onClick={onClick}
-                        actions={[{ icon: <Delete />, id: 'delete', onClick: callRemove }]}
-                    />
-                </>
-            )}
-
-            {!isMobile && viewComplexTable && (
-                <ComplexTable
-                    data={examples}
+                <SimpleTable
                     schema={_.pick(
                         {
                             ...exampleApi.schema,
@@ -182,19 +139,11 @@ const ExampleList = (props: IExampleList) => {
                         },
                         ['image', 'title', 'description', 'nomeUsuario']
                     )}
-                    onRowClick={(row) => navigate('/example/view/' + row.id)}
-                    searchPlaceholder={'Pesquisar exemplo'}
-                    onDelete={callRemove}
-                    onEdit={(row) => navigate('/example/edit/' + row._id)}
-                    toolbar={{
-                        selectColumns: true,
-                        exportTable: { csv: true, print: true },
-                        searchFilter: true,
-                    }}
-                    onFilterChange={onSearch}
-                    loading={loading}
+                    data={examples}
+                    onClick={onClick}
+                    actions={[{ icon: <Delete />, id: 'delete', onClick: callRemove }]}
                 />
-            )}
+            </>
 
             <div
                 style={{
@@ -314,7 +263,7 @@ export const ExampleListContainer = withTracker((props: IDefaultContainerProps) 
         setViewComplexTable: (enableComplexTable: boolean) =>
             viewComplexTable.set(enableComplexTable),
         searchBy: config.searchBy,
-        onSearch: (...params: any) => {
+        onSearch: (...params: any) => {            
             onSearchExampleTyping && clearTimeout(onSearchExampleTyping);
             onSearchExampleTyping = setTimeout(() => {
                 config.pageProperties.currentPage = 1;
