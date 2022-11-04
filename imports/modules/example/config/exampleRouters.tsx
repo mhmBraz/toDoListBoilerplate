@@ -5,13 +5,13 @@ import { IRoute } from '/imports/modules/modulesTypings';
 
 export const exampleRouterList: IRoute[] = [
     {
-        path: '/example/:screenState/:exampleId',
+        path: '/tarefa/:screenState/:exampleId',
         component: ExampleContainer,
         isProtected: true,
         resources: [Recurso.EXAMPLE_VIEW],
     },
     {
-        path: '/example/:screenState',
+        path: '/tarefa/:screenState',
         component: ExampleContainer,
         isProtected: true,
         resources: [Recurso.EXAMPLE_CREATE],

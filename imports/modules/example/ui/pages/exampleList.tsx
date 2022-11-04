@@ -1,20 +1,15 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { exampleApi } from '../../api/exampleApi';
-import { userprofileApi } from '../../../../userprofile/api/UserProfileApi';
-import { SimpleTable } from '/imports/ui/components/SimpleTable/SimpleTable';
 import _ from 'lodash';
 import Add from '@mui/icons-material/Add';
-import Delete from '@mui/icons-material/Delete';
 import Fab from '@mui/material/Fab';
-import TablePagination from '@mui/material/TablePagination';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { initSearch } from '/imports/libs/searchUtils';
-import * as appStyle from '/imports/materialui/styles';
 import shortid from 'shortid';
 import { PageLayout } from '/imports/ui/layouts/pageLayout';
 import TextField from '/imports/ui/components/SimpleFormFields/TextField/TextField';
-import SearchDocField from '/imports/ui/components/SimpleFormFields/SearchDocField/SearchDocField';
+import CheckField from '/imports/ui/components/SimpleFormFields/CheckBoxField/CheckBoxField';
 import {
     IDefaultContainerProps,
     IDefaultListProps,
@@ -24,19 +19,30 @@ import { IExample } from '../../api/exampleSch';
 import { IConfigList } from '/imports/typings/IFilterProperties';
 import { Recurso } from '../../config/Recursos';
 import { RenderComPermissao } from '/imports/seguranca/ui/components/RenderComPermisao';
-import { isMobile } from '/imports/libs/deviceVerify';
 import { showLoading } from '/imports/ui/components/Loading/Loading';
-import { ComplexTable } from '/imports/ui/components/ComplexTable/ComplexTable';
-import ToggleField from '/imports/ui/components/SimpleFormFields/ToggleField/ToggleField';
-import { Box } from '@mui/material';
+import {
+    Avatar,
+    Box,
+    Button,
+    ListItem,
+    ListItemAvatar,
+    ListItemText,
+    Typography,
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 interface IExampleList extends IDefaultListProps {
     remove: (doc: IExample) => void;
+    save: (doc: IExample) => void;
     viewComplexTable: boolean;
     setViewComplexTable: (_enable: boolean) => void;
     examples: IExample[];
     setFilter: (newFilter: Object) => void;
     clearFilter: () => void;
+    changeCompletion: any; // tratar
 }
 
 const ExampleList = (props: IExampleList) => {
@@ -57,30 +63,27 @@ const ExampleList = (props: IExampleList) => {
         searchBy,
         pageProperties,
         isMobile,
-        user
+        user,
+        save,
+        changeCompletion,
     } = props;
-    
+    let page = 1;
     const idExample = shortid.generate();
-
-    const onClick = (_event: React.SyntheticEvent, id: string) => {
-        navigate('/example/view/' + id);
-    };
-
-    const handleChangePage = (
-        _event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null,
-        newPage: number
-    ) => {
-        setPage(newPage + 1);
-    };
-
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setPageSize(parseInt(event.target.value, 10));
-        setPage(1);
-    };
-
     const [text, setText] = React.useState(searchBy || '');
 
-    const change = (e: React.ChangeEvent<HTMLInputElement>) => {   
+    const onClick = (_event: React.SyntheticEvent, id: string) => {
+        navigate('/tarefa/view/' + id);
+    };
+
+    const handleClickRowsPerPage = (
+        event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null
+    ) => {
+        page = event?.target.id === 'nextPagination' ? page + 1 : page - 1;
+
+        setPage(page);
+    };
+
+    const change = (e: React.ChangeEvent<HTMLInputElement>) => {
         clearFilter();
 
         if (e.target.value.length !== 0) {
@@ -106,21 +109,37 @@ const ExampleList = (props: IExampleList) => {
         showDeleteDialog && showDeleteDialog(title, message, doc, remove);
     };
 
-    const handleSearchDocChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        !!e.target.value ? setFilter({ createdby: e.target.value }) : clearFilter();
+    const callChangeCompletion = (doc: IExample) => {
+        changeCompletion({ id: doc._id, completion: !doc.completion }, (e, r) => {
+            console.log('error', e);
+            console.log('result', r);
+        });
     };
 
-    // @ts-ignore
-    // @ts-ignore
     return (
         <PageLayout title={'Tarefas'} actions={[]}>
             <Box>
                 <h1> Olá, {user.username}</h1>
             </Box>
             <Box>
-                <h4> Seus projetos muito mais organizados. Veja as tarefas adicionadas por seu time, por você e para você!</h4>
+                <Box>
+                    <h4>
+                        {' '}
+                        Seus projetos muito mais organizados. Veja as tarefas adicionadas por seu
+                        time, por você e para você!
+                    </h4>
+                </Box>
+                <Box>
+                    <Button
+                        key={'b1'}
+                        style={{ marginRight: 10 }}
+                        color={'secondary'}
+                        variant="contained"
+                    >
+                        Minhas tarefas
+                    </Button>
+                </Box>
             </Box>
-
             <>
                 <TextField
                     name={'pesquisar'}
@@ -131,45 +150,98 @@ const ExampleList = (props: IExampleList) => {
                     action={{ icon: 'search', onClick: click }}
                 />
 
-                <SimpleTable
-                    schema={_.pick(
-                        {
-                            ...exampleApi.schema,
-                            nomeUsuario: { type: String, label: 'Criado por' },
-                        },
-                        ['image', 'title', 'description', 'nomeUsuario']
-                    )}
-                    data={examples}
-                    onClick={onClick}
-                    actions={[{ icon: <Delete />, id: 'delete', onClick: callRemove }]}
-                />
+                <Box sx={{ minHeight: 450 }}>
+                    <Box>
+                        <h5>Atividades recentes</h5>
+                    </Box>
+                    <Box sx={{ minHeight: 350 }}>
+                        {examples.map((task, index) => {
+                            return (
+                                <ListItem sx={{ marginBottom: 2 }} key={index}>
+                                    <Box sx={{ display: 'flex', minWidth: 400 }}>
+                                        <CheckField
+                                            value={task.completion}
+                                            onChange={() => callChangeCompletion(task)}
+                                            key={index}
+                                        ></CheckField>
+                                        <ListItemAvatar>
+                                            <Avatar alt="Remy Sharp" src={task.image} />
+                                        </ListItemAvatar>
+                                        <ListItemText
+                                            primary={
+                                                <Typography
+                                                    component="span"
+                                                    variant="body2"
+                                                    color="text.primary"
+                                                    sx={{
+                                                        textDecoration: task.completion
+                                                            ? 'line-through'
+                                                            : 'none',
+                                                    }}
+                                                >
+                                                    {task.title}
+                                                </Typography>
+                                            }
+                                            secondary={
+                                                <React.Fragment>
+                                                    <>
+                                                        <Typography
+                                                            component="span"
+                                                            variant="body2"
+                                                            color="text.primary"
+                                                        >
+                                                            Criado por:{' '}
+                                                            {user._id === task.createdby
+                                                                ? 'Você'
+                                                                : task.nomeUsuario}
+                                                        </Typography>
+                                                    </>
+                                                </React.Fragment>
+                                            }
+                                        />
+                                    </Box>
+                                    <Fab
+                                        id={'edit'}
+                                        onClick={(e) => onClick(e, task._id)}
+                                        color={'primary'}
+                                    >
+                                        <EditIcon />
+                                    </Fab>
+                                    <Fab
+                                        id={'add'}
+                                        onClick={(e) => callRemove(task)}
+                                        color={'primary'}
+                                    >
+                                        <DeleteIcon />
+                                    </Fab>
+                                    <Box></Box>
+                                </ListItem>
+                            );
+                        })}
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                        <Fab
+                            // disabled={pagination.skip === 0}
+                            onClick={handleClickRowsPerPage}
+                            sx={{ marginRight: 1 }}
+                            id="backPagination"
+                            color="primary"
+                            aria-label="add"
+                        >
+                            <ArrowBackIosIcon id="backPagination" />
+                        </Fab>
+                        <Fab
+                            // disabled={examples.length < 4}
+                            onClick={handleClickRowsPerPage}
+                            id="nextPagination"
+                            color="primary"
+                            aria-label="add"
+                        >
+                            <ArrowForwardIosIcon id="nextPagination" />
+                        </Fab>
+                    </Box>
+                </Box>
             </>
-
-            <div
-                style={{
-                    width: '100%',
-                    display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                }}
-            >
-                <TablePagination
-                    style={{ width: 'fit-content', overflow: 'unset' }}
-                    rowsPerPageOptions={[10, 25, 50, 100]}
-                    labelRowsPerPage={''}
-                    component="div"
-                    count={total || 0}
-                    rowsPerPage={pageProperties.pageSize}
-                    page={pageProperties.currentPage - 1}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
-                    SelectProps={{
-                        inputProps: { 'aria-label': 'rows per page' },
-                    }}
-                />
-            </div>
-
             <RenderComPermissao recursos={[Recurso.EXAMPLE_CREATE]}>
                 <div
                     style={{
@@ -180,7 +252,7 @@ const ExampleList = (props: IExampleList) => {
                 >
                     <Fab
                         id={'add'}
-                        onClick={() => navigate(`/example/create/${idExample}`)}
+                        onClick={() => navigate(`/tarefa/create/${idExample}`)}
                         color={'primary'}
                     >
                         <Add />
@@ -194,9 +266,9 @@ const ExampleList = (props: IExampleList) => {
 export const subscribeConfig = new ReactiveVar<IConfigList & { viewComplexTable: boolean }>({
     pageProperties: {
         currentPage: 1,
-        pageSize: 25,
+        pageSize: 4,
     },
-    sortProperties: { field: 'createdat', sortAscending: true },
+    sortProperties: { field: 'createdat', sortAscending: false },
     filter: {},
     searchBy: null,
     viewComplexTable: false,
@@ -259,11 +331,53 @@ export const ExampleListContainer = withTracker((props: IDefaultContainerProps) 
                 }
             });
         },
+        changeCompletion: (doc: { _id: string; completion: boolean }, _callback: () => void) => {
+            exampleApi.callMethod('changeCompletion', doc, (e: IMeteorError, r: string) => {
+                if (!e) {
+                    showNotification &&
+                        showNotification({
+                            type: 'success',
+                            title: 'Operação realizada!',
+                            description: `O exemplo foi${
+                                doc.completion ? '' : ' retirado do'
+                            } completado com sucesso!`,
+                        });
+                } else {
+                    showNotification &&
+                        showNotification({
+                            type: 'warning',
+                            title: 'Operação não realizada!',
+                            description: `Erro ao realizar a operação: ${e.reason}`,
+                        });
+                }
+            });
+        },
+        save: (doc: IExample, _callback: () => void) => {
+            exampleApi['update'](doc, (e: IMeteorError, r: string) => {
+                if (!e) {
+                    showNotification &&
+                        showNotification({
+                            type: 'success',
+                            title: 'Operação realizada!',
+                            description: `O exemplo foi ${
+                                doc.completion ? '' : 'retirado do'
+                            } completado com sucesso!`,
+                        });
+                } else {
+                    showNotification &&
+                        showNotification({
+                            type: 'warning',
+                            title: 'Operação não realizada!',
+                            description: `Erro ao realizar a operação: ${e.reason}`,
+                        });
+                }
+            });
+        },
         viewComplexTable: viewComplexTable.get(),
         setViewComplexTable: (enableComplexTable: boolean) =>
             viewComplexTable.set(enableComplexTable),
         searchBy: config.searchBy,
-        onSearch: (...params: any) => {            
+        onSearch: (...params: any) => {
             onSearchExampleTyping && clearTimeout(onSearchExampleTyping);
             onSearchExampleTyping = setTimeout(() => {
                 config.pageProperties.currentPage = 1;

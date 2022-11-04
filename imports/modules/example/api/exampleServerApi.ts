@@ -3,6 +3,9 @@ import { Recurso } from '../config/Recursos';
 import { exampleSch, IExample } from './exampleSch';
 import { userprofileServerApi } from '/imports/userprofile/api/UserProfileServerApi';
 import { ProductServerBase } from '/imports/api/productServerBase';
+import { IContext } from '/imports/typings/IContext';
+import { check } from 'meteor/check';
+import { TaskAlt } from '@mui/icons-material';
 // endregion
 
 class ExampleServerApi extends ProductServerBase<IExample> {
@@ -15,9 +18,12 @@ class ExampleServerApi extends ProductServerBase<IExample> {
 
         this.addTransformedPublication(
             'exampleList',
-            (filter = {}) => {
+            (filter = {}, options = {}) => {
+                console.log(options);
+                
                 return this.defaultListCollectionPublication(filter, {
-                    projection: { image: 1, title: 1, description: 1, createdby: 1 },
+                    ...options,
+                    projection: { image: 1, title: 1, description: 1, createdby: 1, completion: 1, type: 1 },
                 });
             },
             (doc: IExample & { nomeUsuario: string }) => {
@@ -61,6 +67,17 @@ class ExampleServerApi extends ProductServerBase<IExample> {
                 //authFunction: (_h, _p) => _p.exampleId === 'flkdsajflkasdjflsa',
             }
         );
+
+        this.registerMethod('changeCompletion', this.serverChangeCompletion);
+    }
+
+    serverChangeCompletion = (doc: { id: string; completion: boolean }, context: IContext) => {
+
+        let task : IExample = this.findOne({ _id: doc.id });
+        
+        task.completion = doc.completion
+        
+        return this.serverUpdate({ _id: task._id, ...task }, context);
     }
 }
 

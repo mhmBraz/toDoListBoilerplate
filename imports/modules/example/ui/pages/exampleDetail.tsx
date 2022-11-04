@@ -49,7 +49,7 @@ const ExampleDetail = (props: IExampleDetail) => {
                     ? 'Editar Exemplo'
                     : 'Criar exemplo'
             }
-            onBack={() => navigate('/example')}
+            onBack={() => navigate('/tarefas')}
             actions={[
                 !isPrintView ? (
                     <span
@@ -60,7 +60,7 @@ const ExampleDetail = (props: IExampleDetail) => {
                             color: theme.palette.secondary.main,
                         }}
                         onClick={() => {
-                            navigate(`/example/printview/${exampleDoc._id}`);
+                            navigate(`/tarefa/printview/${exampleDoc._id}`);
                         }}
                     >
                         <Print key={'ExempleDetail-spanPrintKEY'} />
@@ -74,7 +74,7 @@ const ExampleDetail = (props: IExampleDetail) => {
                             color: theme.palette.secondary.main,
                         }}
                         onClick={() => {
-                            navigate(`/example/view/${exampleDoc._id}`);
+                            navigate(`/tarefa/view/${exampleDoc._id}`);
                         }}
                     >
                         <Close key={'ExempleDetail-spanCloseKEY'} />
@@ -167,8 +167,8 @@ const ExampleDetail = (props: IExampleDetail) => {
                             style={{ marginRight: 10 }}
                             onClick={
                                 screenState === 'edit'
-                                    ? () => navigate(`/example/view/${exampleDoc._id}`)
-                                    : () => navigate(`/example/list`)
+                                    ? () => navigate(`/tarefa/view/${exampleDoc._id}`)
+                                    : () => navigate(`/tarefa/list`)
                             }
                             color={'secondary'}
                             variant="contained"
@@ -181,7 +181,7 @@ const ExampleDetail = (props: IExampleDetail) => {
                         <Button
                             key={'b2'}
                             onClick={() => {
-                                navigate(`/example/edit/${exampleDoc._id}`);
+                                navigate(`/tarefa/edit/${exampleDoc._id}`);
                             }}
                             color={'primary'}
                             variant="contained"
@@ -220,7 +220,7 @@ export const ExampleDetailContainer = withTracker((props: IExampleDetailContaine
             const selectedAction = screenState === 'create' ? 'insert' : 'update';
             exampleApi[selectedAction](doc, (e: IMeteorError, r: string) => {
                 if (!e) {
-                    navigate(`/example/view/${screenState === 'create' ? r : doc._id}`);
+                    navigate(`/tarefa/view/${screenState === 'create' ? r : doc._id}`);
                     showNotification &&
                         showNotification({
                             type: 'success',
