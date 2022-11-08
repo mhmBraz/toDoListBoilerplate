@@ -7,6 +7,7 @@ import { IContext } from '/imports/typings/IContext';
 import { check } from 'meteor/check';
 import { TaskAlt } from '@mui/icons-material';
 import { Meteor } from 'meteor/meteor';
+import { getSystemUserProfile, getUser } from '/imports/libs/getUser';
 // endregion
 
 class ToDosServerApi extends ProductServerBase<IToDos> {
@@ -20,9 +21,14 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
         this.addTransformedPublication(
             'toDosList',
             (filter = {}, options = {}) => {
-                return this.defaultListCollectionPublication(filter, {
+                const user = getUser();
+                
+                return this.defaultListCollectionPublication({
+                    ...filter,
+                    $or: [{ $and: [{ private: true }, { createdby: user._id }] }, { private: false }]
+                }, {
                     ...options,
-                    projection: { image: 1, title: 1, description: 1, createdby: 1, completion: 1, type: 1, createdat: 1 },
+                    projection: { image: 1, title: 1, description: 1, createdby: 1, completion: 1, type: 1, createdat: 1, private: 1 },
                 });
             },
             (doc: IToDos & { nomeUsuario: string }) => {

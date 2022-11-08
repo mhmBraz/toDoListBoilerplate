@@ -27,7 +27,9 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { exampleApi } from '/imports/modules/example/api/exampleApi';
+import LockIcon from '@mui/icons-material/Lock';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 interface IToDosList extends IDefaultListProps {
     remove: (doc: IToDos) => void;
@@ -35,18 +37,21 @@ interface IToDosList extends IDefaultListProps {
     viewComplexTable: boolean;
     setViewComplexTable: (_enable: boolean) => void;
     toDoss: IToDos[];
-    toDossCompletion: IToDos[];
+    toDossCompletion: number;
+    toDossNotCompletion: number;
     setFilter: (newFilter: Object) => void;
     setFilterCompletion: (newFilter: Object) => void;
     setPageCompletion: (page: number) => void;
     clearFilter: () => void;
     changeCompletion: any; // tratar
 }
+let page = 1;
 
 const ToDosList = (props: IToDosList) => {
     const {
         toDoss,
         toDossCompletion,
+        toDossNotCompletion,
         navigate,
         remove,
         showDeleteDialog,
@@ -70,7 +75,6 @@ const ToDosList = (props: IToDosList) => {
         changeCompletion,
     } = props;
 
-    let page = 1;
     const idToDos = shortid.generate();
 
     const [text, setText] = React.useState(searchBy || '');
@@ -111,6 +115,20 @@ const ToDosList = (props: IToDosList) => {
             console.log('result', r);
         });
     };
+
+    const handleClickRowsPerPage = (
+        event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null
+    ) => {
+        if (event?.target.id === 'nextPagination') {
+            page += 1;
+        } else {
+            page -= 1;
+        }
+
+        console.log(page, event?.target.id);
+
+        setPage(page);
+    };
     return (
         <PageLayout title={'Tarefas'} actions={[]}>
             <>
@@ -131,83 +149,88 @@ const ToDosList = (props: IToDosList) => {
                             aria-controls="panel1a-content"
                             id="panel1a-header"
                         >
-                            <Typography>Não concluídas ({toDoss.length})</Typography>
+                            <Typography>Não concluídas ({toDossNotCompletion})</Typography>
                         </AccordionSummary>
                         {toDoss.map((task, index) => {
-                            return (
-                                <AccordionDetails
-                                    key={index}
-                                    onClick={() => {
-                                        showModal({
-                                            title: 'Tarefa',
-                                            url: `/tarefa/view/${task._id}`,
-                                        });
-                                    }}
-                                >
-                                    <ListItem sx={{ marginBottom: 2 }} key={index}>
-                                        <Box sx={{ display: 'flex', minWidth: 400 }}>
-                                            <CheckField
-                                                value={task.completion}
-                                                onChange={() => callChangeCompletion(task)}
-                                                key={index}
-                                            ></CheckField>
-                                            <ListItemAvatar>
-                                                <Avatar alt="Remy Sharp" src={task.image} />
-                                            </ListItemAvatar>
-                                            <ListItemText
-                                                primary={
-                                                    <Typography
-                                                        component="span"
-                                                        variant="body2"
-                                                        color="text.primary"
-                                                        sx={{
-                                                            textDecoration: task.completion
-                                                                ? 'line-through'
-                                                                : 'none',
-                                                        }}
-                                                    >
-                                                        {task.title}
-                                                    </Typography>
-                                                }
-                                                secondary={
-                                                    <React.Fragment>
-                                                        <>
+                            if (!task.completion) {
+                                return (
+                                    <AccordionDetails key={index}>
+                                        <ListItem sx={{ marginBottom: 2 }} key={index}>
+                                            <Box sx={{ display: 'flex', minWidth: 400 }}>
+                                                <CheckField
+                                                    value={task.completion}
+                                                    onChange={() => callChangeCompletion(task)}
+                                                    key={index}
+                                                ></CheckField>
+                                                <Box
+                                                    sx={{ display: 'flex' }}
+                                                    onClick={() => {
+                                                        showModal({
+                                                            title: 'Tarefa',
+                                                            url: `/tarefa/view/${task._id}`,
+                                                        });
+                                                    }}
+                                                >
+                                                    <ListItemAvatar>
+                                                        <Avatar alt="Remy Sharp" src={task.image} />
+                                                    </ListItemAvatar>
+                                                    <ListItemText
+                                                        primary={
                                                             <Typography
                                                                 component="span"
                                                                 variant="body2"
                                                                 color="text.primary"
+                                                                sx={{
+                                                                    textDecoration: task.completion
+                                                                        ? 'line-through'
+                                                                        : 'none',
+                                                                }}
                                                             >
-                                                                Criado por:{' '}
-                                                                {user._id === task.createdby
-                                                                    ? 'Você'
-                                                                    : task.nomeUsuario}
+                                                                {task.title}
+                                                                {task.private && <LockIcon />}
                                                             </Typography>
-                                                        </>
-                                                    </React.Fragment>
-                                                }
-                                            />
-                                        </Box>
-                                        {user._id === task.createdby && (
-                                            <Box sx={{ display: 'flex', gap: 5 }}>
-                                                <Fab
-                                                    id={'edit'}
-                                                    onClick={(e) => onClick(e, task._id)}
-                                                    color={'primary'}
-                                                >
-                                                    <EditIcon />
-                                                </Fab>
-                                                <Fab
-                                                    id={'add'}
-                                                    onClick={(e) => callRemove(task)}
-                                                    color={'primary'}
-                                                >
-                                                    <DeleteIcon />
-                                                </Fab>
+                                                        }
+                                                        secondary={
+                                                            <React.Fragment>
+                                                                <>
+                                                                    <Typography
+                                                                        component="span"
+                                                                        variant="body2"
+                                                                        color="text.primary"
+                                                                    >
+                                                                        Criado por:{' '}
+                                                                        {user._id === task.createdby
+                                                                            ? 'Você'
+                                                                            : task.nomeUsuario}
+                                                                    </Typography>
+                                                                </>
+                                                            </React.Fragment>
+                                                        }
+                                                    />
+                                                </Box>
                                             </Box>
-                                        )}
-                                    </ListItem>
-                                </AccordionDetails>
-                            );
+                                            {user._id === task.createdby && (
+                                                <Box sx={{ display: 'flex', gap: 5 }}>
+                                                    <Fab
+                                                        id={'edit'}
+                                                        onClick={(e) => onClick(e, task._id)}
+                                                        color={'primary'}
+                                                    >
+                                                        <EditIcon />
+                                                    </Fab>
+                                                    <Fab
+                                                        id={'add'}
+                                                        onClick={(e) => callRemove(task)}
+                                                        color={'primary'}
+                                                    >
+                                                        <DeleteIcon />
+                                                    </Fab>
+                                                </Box>
+                                            )}
+                                        </ListItem>
+                                    </AccordionDetails>
+                                );
+                            }
                         })}
                     </Accordion>
                 </Box>
@@ -219,77 +242,112 @@ const ToDosList = (props: IToDosList) => {
                             aria-controls="panel1a-content"
                             id="panel1a-header"
                         >
-                            <Typography>concluídas ({toDossCompletion.length})</Typography>
+                            <Typography>concluídas ({toDossCompletion})</Typography>
                         </AccordionSummary>
-                        {toDossCompletion.map((task, index) => {
-                            return (
-                                <AccordionDetails key={index}>
-                                    <ListItem sx={{ marginBottom: 2 }} key={index}>
-                                        <Box sx={{ display: 'flex', minWidth: 400 }}>
-                                            <CheckField
-                                                value={task.completion}
-                                                onChange={() => callChangeCompletion(task)}
-                                                key={index}
-                                            ></CheckField>
-                                            <ListItemAvatar>
-                                                <Avatar alt="Remy Sharp" src={task.image} />
-                                            </ListItemAvatar>
-                                            <ListItemText
-                                                primary={
-                                                    <Typography
-                                                        component="span"
-                                                        variant="body2"
-                                                        color="text.primary"
-                                                        sx={{
-                                                            textDecoration: task.completion
-                                                                ? 'line-through'
-                                                                : 'none',
-                                                        }}
-                                                    >
-                                                        {task.title}
-                                                    </Typography>
-                                                }
-                                                secondary={
-                                                    <React.Fragment>
-                                                        <>
+                        {toDoss.map((task, index) => {
+                            if (task.completion) {
+                                return (
+                                    <AccordionDetails key={index}>
+                                        <ListItem sx={{ marginBottom: 2 }} key={index}>
+                                            <Box sx={{ display: 'flex', minWidth: 400 }}>
+                                                <CheckField
+                                                    value={task.completion}
+                                                    onChange={() => callChangeCompletion(task)}
+                                                    key={index}
+                                                ></CheckField>
+                                                <Box
+                                                    sx={{ display: 'flex' }}
+                                                    onClick={() => {
+                                                        showModal({
+                                                            title: 'Tarefa',
+                                                            url: `/tarefa/view/${task._id}`,
+                                                        });
+                                                    }}
+                                                >
+                                                    <ListItemAvatar>
+                                                        <Avatar alt="Remy Sharp" src={task.image} />
+                                                    </ListItemAvatar>
+                                                    <ListItemText
+                                                        primary={
                                                             <Typography
                                                                 component="span"
                                                                 variant="body2"
                                                                 color="text.primary"
+                                                                sx={{
+                                                                    textDecoration: task.completion
+                                                                        ? 'line-through'
+                                                                        : 'none',
+                                                                }}
                                                             >
-                                                                Criado por:{' '}
-                                                                {user._id === task.createdby
-                                                                    ? 'Você'
-                                                                    : task.nomeUsuario}
+                                                                {task.title}
+                                                                {task.private && <LockIcon />}
                                                             </Typography>
-                                                        </>
-                                                    </React.Fragment>
-                                                }
-                                            />
-                                        </Box>
-                                        {user._id === task.createdby && (
-                                            <Box sx={{ display: 'flex', gap: 5 }}>
-                                                <Fab
-                                                    id={'edit'}
-                                                    onClick={(e) => onClick(e, task._id)}
-                                                    color={'primary'}
-                                                >
-                                                    <EditIcon />
-                                                </Fab>
-                                                <Fab
-                                                    id={'add'}
-                                                    onClick={(e) => callRemove(task)}
-                                                    color={'primary'}
-                                                >
-                                                    <DeleteIcon />
-                                                </Fab>
+                                                        }
+                                                        secondary={
+                                                            <React.Fragment>
+                                                                <>
+                                                                    <Typography
+                                                                        component="span"
+                                                                        variant="body2"
+                                                                        color="text.primary"
+                                                                    >
+                                                                        Criado por:{' '}
+                                                                        {user._id === task.createdby
+                                                                            ? 'Você'
+                                                                            : task.nomeUsuario}
+                                                                    </Typography>
+                                                                </>
+                                                            </React.Fragment>
+                                                        }
+                                                    />
+                                                </Box>
                                             </Box>
-                                        )}
-                                    </ListItem>
-                                </AccordionDetails>
-                            );
+                                            {user._id === task.createdby && (
+                                                <Box sx={{ display: 'flex', gap: 5 }}>
+                                                    <Fab
+                                                        id={'edit'}
+                                                        onClick={(e) => onClick(e, task._id)}
+                                                        color={'primary'}
+                                                    >
+                                                        <EditIcon />
+                                                    </Fab>
+                                                    <Fab
+                                                        id={'add'}
+                                                        onClick={(e) => callRemove(task)}
+                                                        color={'primary'}
+                                                    >
+                                                        <DeleteIcon />
+                                                    </Fab>
+                                                </Box>
+                                            )}
+                                        </ListItem>
+                                    </AccordionDetails>
+                                );
+                            }
                         })}
                     </Accordion>
+                </Box>
+
+                <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 5 }}>
+                    <Fab
+                        disabled={page === 1}
+                        onClick={handleClickRowsPerPage}
+                        sx={{ marginRight: 1 }}
+                        id="backPagination"
+                        color="primary"
+                        aria-label="add"
+                    >
+                        <ArrowBackIosIcon id="backPagination" />
+                    </Fab>
+                    <Fab
+                        disabled={toDoss.length < 4}
+                        onClick={handleClickRowsPerPage}
+                        id="nextPagination"
+                        color="primary"
+                        aria-label="add"
+                    >
+                        <ArrowForwardIosIcon id="nextPagination" />
+                    </Fab>
                 </Box>
             </>
             <RenderComPermissao recursos={[Recurso.TODOS_CREATE]}>
@@ -357,27 +415,38 @@ export const ToDosListContainer = withTracker((props: IDefaultContainerProps) =>
     };
     toDosSearch.setActualConfig(config);
 
-    const filter = { ...config.filter };
-
+    const filter = {
+        ...config.filter,
+    };
+    const limit = config.pageProperties.pageSize;
+    const skip = (config.pageProperties.currentPage - 1) * config.pageProperties.pageSize;
     //Collection Subscribe
-    const subHandle = toDosApi.subscribe('toDosList', { ...filter });
+
+    const subHandle = toDosApi.subscribe(
+        'toDosList',
+        { ...filter },
+        {
+            sort,
+            limit,
+            skip,
+        }
+    );
 
     const toDoss = subHandle?.ready()
-        ? toDosApi.find({ ...filter, completion: false }, { createdat: -1, sort }).fetch()
+        ? toDosApi.find({ ...filter }, { createdat: -1, sort }).fetch()
         : [];
+
+    const toDossNotCompletion = subHandle?.ready()
+        ? toDosApi.find({ ...filter, completion: false }).count()
+        : [];
+
     const toDossCompletion = subHandle?.ready()
-        ? toDosApi
-              .find(
-                  { ...filter, completion: true },
-                  {
-                      sort,
-                  }
-              )
-              .fetch()
+        ? toDosApi.find({ ...filter, completion: true }).count()
         : [];
 
     return {
         toDoss,
+        toDossNotCompletion,
         toDossCompletion,
         loading: !!subHandle && !subHandle.ready(),
         remove: (doc: IToDos) => {

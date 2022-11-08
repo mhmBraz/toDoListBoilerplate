@@ -24,6 +24,7 @@ import {
 } from '/imports/typings/BoilerplateDefaultTypings';
 import { useTheme } from '@mui/material/styles';
 import { showLoading } from '/imports/ui/components/Loading/Loading';
+import ToggleField from '/imports/ui/components/SimpleFormFields/ToggleField/ToggleField';
 
 interface IToDosDetail extends IDefaultDetailProps {
     toDosDoc: IToDos;
@@ -42,9 +43,7 @@ const ToDosDetail = (props: IToDosDetail) => {
     return (
         <PageLayout
             key={'ExemplePageLayoutDetailKEY'}
-            title={
-                'Minhas tarefas'
-            }
+            title={'Minhas tarefas'}
             onBack={() => navigate('/minhas-tarefas')}
             actions={[
                 !isPrintView ? (
@@ -93,6 +92,7 @@ const ToDosDetail = (props: IToDosDetail) => {
                 />
 
                 <FormGroup key={'fieldsOne'}>
+                    <ToggleField placeholder="Privado" name="private"></ToggleField>
                     <TextField key={'f1-tituloKEY'} placeholder="Titulo" name="title" />
                     <TextField key={'f1-descricaoKEY'} placeholder="Descrição" name="description" />
                 </FormGroup>
@@ -214,17 +214,18 @@ export const ToDosDetailContainer = withTracker((props: IToDosDetailContainer) =
         toDosDoc,
         save: (doc: IToDos, _callback: () => void) => {
             doc.completion = false;
+            doc.private = doc.private ? doc.private : false;
             const selectedAction = screenState === 'create' ? 'insert' : 'update';
             toDosApi[selectedAction](doc, (e: IMeteorError, r: string) => {
                 if (!e) {
+                    console.log(r);
+
                     navigate('/minhas-tarefas');
                     showNotification &&
                         showNotification({
                             type: 'success',
                             title: 'Operação realizada!',
-                            description: `O exemplo foi ${
-                                doc._id ? 'atualizado' : 'cadastrado'
-                            } com sucesso!`,
+                            description: r?.text,
                         });
                 } else {
                     console.log('Error:', e);

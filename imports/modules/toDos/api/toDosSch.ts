@@ -14,6 +14,12 @@ export const toDosSch = {
         defaultValue: false,
         optional: true,
     },
+    private: {
+        type: Boolean,
+        label: 'Privado',
+        defaultValue: false,
+        optional: true,
+    },
     title: {
         type: String,
         label: 'Título',
@@ -25,13 +31,6 @@ export const toDosSch = {
         label: 'Descrição',
         defaultValue: '',
         optional: true,
-    },
-    check: {
-        type: Object,
-        label: 'check box',
-        defaultValue: {},
-        optional: true,
-        options: ['Todo', 'Doing', 'Done'],
     },
     type: {
         type: String,
@@ -70,12 +69,6 @@ export const toDosSch = {
         defaultValue: '',
         optional: true,
         isUpload: true,
-    },
-    chip: {
-        type: [String],
-        label: 'Chips',
-        defaultValue: '',
-        optional: true,
     },
     contacts: {
         type: Object,
@@ -126,34 +119,6 @@ export const toDosSch = {
         optional: true,
         isAudio: true,
     },
-    address: {
-        type: Object,
-        label: 'Localização',
-        defaultValue: '',
-        isMapLocation: true,
-        optional: true,
-    },
-    slider: {
-        type: Number,
-        label: 'Slider',
-        defaultValue: 0,
-        optional: true,
-        max: 100,
-        min: 0,
-    },
-    statusRadio: {
-        type: String,
-        label: 'Status RadioButton',
-        defaultValue: '',
-        optional: true,
-        radiosList: ['Todo', 'Doing', 'Done'],
-    },
-    statusToggle: {
-        type: Boolean,
-        label: 'Status Toogle',
-        defaultValue: false,
-        optional: true,
-    },
 };
 
 export interface IToDos extends IDoc {
@@ -166,4 +131,5 @@ export interface IToDos extends IDoc {
     nomeUsuario:string;
     type: string;
     completion?: Boolean; //?opcional
+    private?: Boolean; //?opcional
 }

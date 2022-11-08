@@ -224,13 +224,11 @@ export class ServerApiBase<Doc extends IDoc> {
         Object.keys(this.schema).forEach((field) => {
             if (this.schema[field].isImage) {
                 if (doc['has' + field]) {
-                    doc[field] = `${Meteor.absoluteUrl()}thumbnail/${
-                        this.collectionName
-                    }/${field}/${doc._id}?date=${
-                        doc.lastupdate && doc.lastupdate.toISOString
+                    doc[field] = `${Meteor.absoluteUrl()}thumbnail/${this.collectionName
+                        }/${field}/${doc._id}?date=${doc.lastupdate && doc.lastupdate.toISOString
                             ? doc.lastupdate.toISOString()
                             : '1'
-                    }`;
+                        }`;
                 } else {
                     doc[field] = this.noImagePath
                         ? this.noImagePath
@@ -469,18 +467,17 @@ export class ServerApiBase<Doc extends IDoc> {
             apiVersion: number;
             authFunction: (headers: any, params: any) => Boolean;
         } = {
-            apiVersion: 1,
-            authFunction: () => true,
-        }
+                apiVersion: 1,
+                authFunction: () => true,
+            }
     ) {
         if (Meteor.isServer) {
             if (!route || !func || !types || !apiOptions) {
                 console.log('CREATE API ERRRO:', this.collectionName, route);
                 return;
             }
-            const endpoinUrl = `/api/v${apiOptions.apiVersion || 1}/${
-                this.collectionName
-            }/${route}`;
+            const endpoinUrl = `/api/v${apiOptions.apiVersion || 1}/${this.collectionName
+                }/${route}`;
 
             const handleFunc = (type: string) => (req: any, res: any) => {
                 const endpointContext = {
@@ -582,7 +579,7 @@ export class ServerApiBase<Doc extends IDoc> {
                 if (schema[field].isImage) {
                     console.log(
                         'CREATE ENDPOINT GET ' +
-                            `img/${this.collectionName}/${field}/:image ########## IMAGE #############`
+                        `img/${this.collectionName}/${field}/:image ########## IMAGE #############`
                     );
                     this.apiRestImage &&
                         this.apiRestImage.addRoute(
@@ -648,7 +645,7 @@ export class ServerApiBase<Doc extends IDoc> {
                 if (schema[field].isImage) {
                     console.log(
                         'CREATE ENDPOINT GET ' +
-                            `thumbnail/${this.collectionName}/${field}/:image ########## IMAGE #############`
+                        `thumbnail/${this.collectionName}/${field}/:image ########## IMAGE #############`
                     );
                     this.apiRestImage &&
                         this.apiRestImage.addThumbnailRoute(
@@ -1217,9 +1214,12 @@ export class ServerApiBase<Doc extends IDoc> {
                 if (_context.rest) {
                     _context.rest.response.statusCode = 201;
                 }
-                return result;
+                return {
+                    text: "A tarefa foi cadastrado com sucesso!",
+                    result: result
+                };
             }
-            return null;
+            return null
         } catch (insertError: any) {
             this.onInsertError(_docObj, insertError);
             throw insertError;
@@ -1264,7 +1264,7 @@ export class ServerApiBase<Doc extends IDoc> {
         };
     }
 
-    onInsertError(_doc: Partial<Doc>, _error: any): void {}
+    onInsertError(_doc: Partial<Doc>, _error: any): void { }
 
     /**
      * Perform a insert or update on collection.
@@ -1321,7 +1321,10 @@ export class ServerApiBase<Doc extends IDoc> {
                 const result = this.getCollectionInstance().update({ _id: id }, action);
                 preparedData._id = id;
                 this.afterUpdate(preparedData, _context);
-                return result;
+                return {
+                    text: "A tarefa foi editada com sucesso!",
+                    result: result
+                };
             }
             return null;
         } catch (error) {
@@ -1385,7 +1388,7 @@ export class ServerApiBase<Doc extends IDoc> {
         return document;
     }
 
-    onUpdateError(_doc: Partial<Doc>, _error: any): void {}
+    onUpdateError(_doc: Partial<Doc>, _error: any): void { }
 
     /**
      * Perform a remove on an collection.
@@ -1445,7 +1448,7 @@ export class ServerApiBase<Doc extends IDoc> {
         };
     }
 
-    onRemoveError(_doc: Partial<Doc>, _error: any): void {}
+    onRemoveError(_doc: Partial<Doc>, _error: any): void { }
 
     /**
      * Get docs with Meteor.call.
