@@ -8,6 +8,12 @@ export const toDosSch = {
         optional: true,
         isImage: true,
     },
+    completion: {
+        type: Boolean,
+        label: 'Completa',
+        defaultValue: false,
+        optional: true,
+    },
     title: {
         type: String,
         label: 'Título',
@@ -157,4 +163,7 @@ export interface IToDos extends IDoc {
     audio: string;
     statusCheck: object;
     statusToggle: boolean;
+    nomeUsuario:string;
+    type: string;
+    completion?: Boolean; //?opcional
 }

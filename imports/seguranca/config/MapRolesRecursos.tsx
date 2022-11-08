@@ -1,4 +1,5 @@
 import { Recurso as Exemplo } from '/imports/modules/example/config/Recursos';
+import { Recurso as TODOS } from '/imports/modules/toDos/config/Recursos';
 
 import { RoleType } from '/imports/seguranca/config/RoleType';
 
@@ -29,12 +30,20 @@ export const mapRolesRecursos: MapRolesRecursos = {
         Exemplo.EXAMPLE_CREATE,
         Exemplo.EXAMPLE_UPDATE,
         Exemplo.EXAMPLE_REMOVE,
+        TODOS.TODOS_VIEW,
+        TODOS.TODOS_CREATE,
+        TODOS.TODOS_UPDATE,
+        TODOS.TODOS_REMOVE,
     ],
     [RoleType.USUARIO]: [
         Exemplo.EXAMPLE_VIEW,
         Exemplo.EXAMPLE_CREATE,
         Exemplo.EXAMPLE_UPDATE,
         Exemplo.EXAMPLE_REMOVE,
+        TODOS.TODOS_VIEW,
+        TODOS.TODOS_CREATE,
+        TODOS.TODOS_UPDATE,
+        TODOS.TODOS_REMOVE,
     ],
     [RoleType.PUBLICO]: [],
 };

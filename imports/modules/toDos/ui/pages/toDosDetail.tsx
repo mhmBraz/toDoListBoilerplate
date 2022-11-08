@@ -43,13 +43,9 @@ const ToDosDetail = (props: IToDosDetail) => {
         <PageLayout
             key={'ExemplePageLayoutDetailKEY'}
             title={
-                screenState === 'view'
-                    ? 'Visualizar exemplo'
-                    : screenState === 'edit'
-                    ? 'Editar Exemplo'
-                    : 'Criar exemplo'
+                'Minhas tarefas'
             }
-            onBack={() => navigate('/toDos')}
+            onBack={() => navigate('/minhas-tarefas')}
             actions={[
                 !isPrintView ? (
                     <span
@@ -60,7 +56,7 @@ const ToDosDetail = (props: IToDosDetail) => {
                             color: theme.palette.secondary.main,
                         }}
                         onClick={() => {
-                            navigate(`/toDos/printview/${toDosDoc._id}`);
+                            navigate(`/tarefa/printview/${toDosDoc._id}`);
                         }}
                     >
                         <Print key={'ExempleDetail-spanPrintKEY'} />
@@ -74,7 +70,7 @@ const ToDosDetail = (props: IToDosDetail) => {
                             color: theme.palette.secondary.main,
                         }}
                         onClick={() => {
-                            navigate(`/toDos/view/${toDosDoc._id}`);
+                            navigate(`/tarefa/view/${toDosDoc._id}`);
                         }}
                     >
                         <Close key={'ExempleDetail-spanCloseKEY'} />
@@ -167,8 +163,8 @@ const ToDosDetail = (props: IToDosDetail) => {
                             style={{ marginRight: 10 }}
                             onClick={
                                 screenState === 'edit'
-                                    ? () => navigate(`/toDos/view/${toDosDoc._id}`)
-                                    : () => navigate(`/toDos/list`)
+                                    ? () => navigate(`/tarefa/view/${toDosDoc._id}`)
+                                    : () => navigate(`/tarefa/list`)
                             }
                             color={'secondary'}
                             variant="contained"
@@ -181,7 +177,7 @@ const ToDosDetail = (props: IToDosDetail) => {
                         <Button
                             key={'b2'}
                             onClick={() => {
-                                navigate(`/toDos/edit/${toDosDoc._id}`);
+                                navigate(`/tarefa/edit/${toDosDoc._id}`);
                             }}
                             color={'primary'}
                             variant="contained"
@@ -217,10 +213,11 @@ export const ToDosDetailContainer = withTracker((props: IToDosDetailContainer) =
         screenState,
         toDosDoc,
         save: (doc: IToDos, _callback: () => void) => {
+            doc.completion = false;
             const selectedAction = screenState === 'create' ? 'insert' : 'update';
             toDosApi[selectedAction](doc, (e: IMeteorError, r: string) => {
                 if (!e) {
-                    navigate(`/toDos/view/${screenState === 'create' ? r : doc._id}`);
+                    navigate('/minhas-tarefas');
                     showNotification &&
                         showNotification({
                             type: 'success',

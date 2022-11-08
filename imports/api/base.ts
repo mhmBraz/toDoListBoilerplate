@@ -201,6 +201,8 @@ export class ApiBase<Doc extends IDoc> {
      * @param  {Function} callback - Callback Function
      */
     insert(docObj: any, callback: any) {
+        console.log('aqui');
+        
         const newObj: { [key: string]: any } = { _id: docObj._id };
         const schema = this.getSchema();
         Object.keys(docObj).forEach((key) => {

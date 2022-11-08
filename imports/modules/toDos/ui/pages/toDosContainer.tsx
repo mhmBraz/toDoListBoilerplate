@@ -4,7 +4,7 @@ import { ToDosDetailContainer } from './toDosDetail';
 import { IDefaultContainerProps } from '/imports/typings/BoilerplateDefaultTypings';
 import { useParams } from 'react-router-dom';
 
-export default (props: IDefaultContainerProps) => {
+export default (props: IDefaultContainerProps) => {    
     const validState = ['view', 'edit', 'create'];
 
     let { screenState, toDosId } = useParams();
@@ -12,7 +12,7 @@ export default (props: IDefaultContainerProps) => {
     const state = screenState ? screenState : props.screenState;
 
     const id = toDosId ? toDosId : props.id;
-
+    
     if (!!state && validState.indexOf(state) !== -1) {
         if (state === 'view' && !!id) {
             return <ToDosDetailContainer {...props} screenState={state} id={id} />;

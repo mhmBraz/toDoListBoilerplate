@@ -68,7 +68,6 @@ const ExampleList = (props: IExampleList) => {
         changeCompletion,
     } = props;
     let page = 1;
-    const idExample = shortid.generate();
     const [text, setText] = React.useState(searchBy || '');
 
     const onClick = (_event: React.SyntheticEvent, id: string) => {
@@ -159,11 +158,13 @@ const ExampleList = (props: IExampleList) => {
                             return (
                                 <ListItem sx={{ marginBottom: 2 }} key={index}>
                                     <Box sx={{ display: 'flex', minWidth: 400 }}>
-                                        <CheckField
-                                            value={task.completion}
-                                            onChange={() => callChangeCompletion(task)}
-                                            key={index}
-                                        ></CheckField>
+                                        {user._id === task.createdby && (
+                                            <CheckField
+                                                value={task.completion}
+                                                onChange={() => callChangeCompletion(task)}
+                                                key={index}
+                                            ></CheckField>
+                                        )}
                                         <ListItemAvatar>
                                             <Avatar alt="Remy Sharp" src={task.image} />
                                         </ListItemAvatar>
@@ -200,21 +201,24 @@ const ExampleList = (props: IExampleList) => {
                                             }
                                         />
                                     </Box>
-                                    <Fab
-                                        id={'edit'}
-                                        onClick={(e) => onClick(e, task._id)}
-                                        color={'primary'}
-                                    >
-                                        <EditIcon />
-                                    </Fab>
-                                    <Fab
-                                        id={'add'}
-                                        onClick={(e) => callRemove(task)}
-                                        color={'primary'}
-                                    >
-                                        <DeleteIcon />
-                                    </Fab>
-                                    <Box></Box>
+                                    {user._id === task.createdby && (
+                                        <Box>
+                                            <Fab
+                                                id={'edit'}
+                                                onClick={(e) => onClick(e, task._id)}
+                                                color={'primary'}
+                                            >
+                                                <EditIcon />
+                                            </Fab>
+                                            <Fab
+                                                id={'add'}
+                                                onClick={(e) => callRemove(task)}
+                                                color={'primary'}
+                                            >
+                                                <DeleteIcon />
+                                            </Fab>
+                                        </Box>
+                                    )}
                                 </ListItem>
                             );
                         })}
@@ -242,23 +246,6 @@ const ExampleList = (props: IExampleList) => {
                     </Box>
                 </Box>
             </>
-            <RenderComPermissao recursos={[Recurso.EXAMPLE_CREATE]}>
-                <div
-                    style={{
-                        position: 'fixed',
-                        bottom: isMobile ? 80 : 30,
-                        right: 30,
-                    }}
-                >
-                    <Fab
-                        id={'add'}
-                        onClick={() => navigate(`/tarefa/create/${idExample}`)}
-                        color={'primary'}
-                    >
-                        <Add />
-                    </Fab>
-                </div>
-            </RenderComPermissao>
         </PageLayout>
     );
 };
@@ -300,12 +287,20 @@ export const ExampleListContainer = withTracker((props: IDefaultContainerProps) 
     const limit = config.pageProperties.pageSize;
     const skip = (config.pageProperties.currentPage - 1) * config.pageProperties.pageSize;
 
+    console.log(limit);
+    
     //Collection Subscribe
     const subHandle = exampleApi.subscribe('exampleList', filter, {
         sort,
         limit,
         skip,
     });
+    console.log({
+        sort,
+        limit,
+        skip,
+    });
+    
     const examples = subHandle?.ready() ? exampleApi.find(filter, { sort }).fetch() : [];
 
     return {

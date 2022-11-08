@@ -5,21 +5,21 @@ import { IRoute } from '/imports/modules/modulesTypings';
 
 export const toDosRouterList: IRoute[] = [
     {
-        path: '/toDos/:screenState/:toDosId',
+        path: '/tarefa/:screenState/:toDosId',
         component: ToDosContainer,
         isProtected: true,
-        resources: [Recurso.EXAMPLE_VIEW],
+        resources: [Recurso.TODOS_VIEW],
     },
     {
-        path: '/toDos/:screenState',
+        path: '/tarefa/:screenState',
         component: ToDosContainer,
         isProtected: true,
-        resources: [Recurso.EXAMPLE_CREATE],
+        resources: [Recurso.TODOS_CREATE],
     },
     {
-        path: '/toDos',
+        path: '/minhas-tarefas',
         component: ToDosContainer,
         isProtected: true,
-        resources: [Recurso.EXAMPLE_VIEW],
+        resources: [Recurso.TODOS_VIEW],
     },
 ];

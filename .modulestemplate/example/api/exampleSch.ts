@@ -8,6 +8,12 @@ export const exampleSch = {
         optional: true,
         isImage: true,
     },
+    completion: {
+        type: Boolean,
+        label: 'Completa',
+        defaultValue: false,
+        optional: true,
+    },
     title: {
         type: String,
         label: 'Título',
@@ -157,4 +163,7 @@ export interface IExample extends IDoc {
     audio: string;
     statusCheck: object;
     statusToggle: boolean;
+    nomeUsuario:string;
+    type: string;
+    completion?: Boolean; //?opcional
 }

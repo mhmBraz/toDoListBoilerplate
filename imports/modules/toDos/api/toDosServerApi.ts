@@ -3,6 +3,10 @@ import { Recurso } from '../config/Recursos';
 import { toDosSch, IToDos } from './toDosSch';
 import { userprofileServerApi } from '/imports/userprofile/api/UserProfileServerApi';
 import { ProductServerBase } from '/imports/api/productServerBase';
+import { IContext } from '/imports/typings/IContext';
+import { check } from 'meteor/check';
+import { TaskAlt } from '@mui/icons-material';
+import { Meteor } from 'meteor/meteor';
 // endregion
 
 class ToDosServerApi extends ProductServerBase<IToDos> {
@@ -15,9 +19,10 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
 
         this.addTransformedPublication(
             'toDosList',
-            (filter = {}) => {
+            (filter = {}, options = {}) => {
                 return this.defaultListCollectionPublication(filter, {
-                    projection: { image: 1, title: 1, description: 1, createdby: 1 },
+                    ...options,
+                    projection: { image: 1, title: 1, description: 1, createdby: 1, completion: 1, type: 1, createdat: 1 },
                 });
             },
             (doc: IToDos & { nomeUsuario: string }) => {
@@ -61,6 +66,24 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
                 //authFunction: (_h, _p) => _p.toDosId === 'flkdsajflkasdjflsa',
             }
         );
+
+        this.registerMethod('changeCompletion', this.serverChangeCompletion);
+    }
+
+    serverChangeCompletion = (doc: { id: string; completion: boolean }, context: IContext) => {
+
+        const { user } = context
+        let task = this.findOne({ _id: doc.id });
+
+        if (task.createdby !== user._id) {
+            throw new Meteor.Error(
+                'Operação não realizada!',
+                `Você não tem permissão para essa ação!`
+            );
+        }
+        task.completion = doc.completion
+
+        return this.serverUpdate({ _id: task._id, ...task }, context);
     }
 }
 

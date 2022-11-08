@@ -1,20 +1,15 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { toDosApi } from '../../api/toDosApi';
-import { userprofileApi } from '../../../../userprofile/api/UserProfileApi';
-import { SimpleTable } from '/imports/ui/components/SimpleTable/SimpleTable';
 import _ from 'lodash';
 import Add from '@mui/icons-material/Add';
-import Delete from '@mui/icons-material/Delete';
 import Fab from '@mui/material/Fab';
-import TablePagination from '@mui/material/TablePagination';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { initSearch } from '/imports/libs/searchUtils';
-import * as appStyle from '/imports/materialui/styles';
 import shortid from 'shortid';
 import { PageLayout } from '/imports/ui/layouts/pageLayout';
 import TextField from '/imports/ui/components/SimpleFormFields/TextField/TextField';
-import SearchDocField from '/imports/ui/components/SimpleFormFields/SearchDocField/SearchDocField';
+import CheckField from '/imports/ui/components/SimpleFormFields/CheckBoxField/CheckBoxField';
 import {
     IDefaultContainerProps,
     IDefaultListProps,
@@ -24,75 +19,76 @@ import { IToDos } from '../../api/toDosSch';
 import { IConfigList } from '/imports/typings/IFilterProperties';
 import { Recurso } from '../../config/Recursos';
 import { RenderComPermissao } from '/imports/seguranca/ui/components/RenderComPermisao';
-import { isMobile } from '/imports/libs/deviceVerify';
 import { showLoading } from '/imports/ui/components/Loading/Loading';
-import { ComplexTable } from '/imports/ui/components/ComplexTable/ComplexTable';
-import ToggleField from '/imports/ui/components/SimpleFormFields/ToggleField/ToggleField';
+import { Avatar, Box, ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { exampleApi } from '/imports/modules/example/api/exampleApi';
 
 interface IToDosList extends IDefaultListProps {
     remove: (doc: IToDos) => void;
+    save: (doc: IToDos) => void;
     viewComplexTable: boolean;
     setViewComplexTable: (_enable: boolean) => void;
     toDoss: IToDos[];
+    toDossCompletion: IToDos[];
     setFilter: (newFilter: Object) => void;
+    setFilterCompletion: (newFilter: Object) => void;
+    setPageCompletion: (page: number) => void;
     clearFilter: () => void;
+    changeCompletion: any; // tratar
 }
 
 const ToDosList = (props: IToDosList) => {
     const {
         toDoss,
+        toDossCompletion,
         navigate,
         remove,
         showDeleteDialog,
+        showModal,
         onSearch,
         total,
         loading,
         viewComplexTable,
         setViewComplexTable,
         setFilter,
+        setFilterCompletion,
         clearFilter,
         setPage,
+        setPageCompletion,
         setPageSize,
         searchBy,
         pageProperties,
         isMobile,
+        user,
+        save,
+        changeCompletion,
     } = props;
 
+    let page = 1;
     const idToDos = shortid.generate();
-
-    const onClick = (_event: React.SyntheticEvent, id: string) => {
-        navigate('/toDos/view/' + id);
-    };
-
-    const handleChangePage = (
-        _event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null,
-        newPage: number
-    ) => {
-        setPage(newPage + 1);
-    };
-
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setPageSize(parseInt(event.target.value, 10));
-        setPage(1);
-    };
 
     const [text, setText] = React.useState(searchBy || '');
 
+    const onClick = (_event: React.SyntheticEvent, id: string) => {
+        navigate('/tarefa/view/' + id);
+    };
+
     const change = (e: React.ChangeEvent<HTMLInputElement>) => {
         clearFilter();
-        if (text.length !== 0 && e.target.value.length === 0) {
-            onSearch();
-        }
-        setText(e.target.value);
-    };
-    const keyPress = (_e: React.SyntheticEvent) => {
-        // if (e.key === 'Enter') {
-        if (text && text.trim().length > 0) {
-            onSearch(text.trim());
+
+        if (e.target.value.length !== 0) {
+            onSearch(e.target.value);
         } else {
             onSearch();
         }
-        // }
+
+        setText(e.target.value);
     };
 
     const click = (_e: any) => {
@@ -109,119 +105,194 @@ const ToDosList = (props: IToDosList) => {
         showDeleteDialog && showDeleteDialog(title, message, doc, remove);
     };
 
-    const handleSearchDocChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        !!e.target.value ? setFilter({ createdby: e.target.value }) : clearFilter();
+    const callChangeCompletion = (doc: IToDos) => {
+        changeCompletion({ id: doc._id, completion: !doc.completion }, (e, r) => {
+            console.log('error', e);
+            console.log('result', r);
+        });
     };
-
-    // @ts-ignore
-    // @ts-ignore
     return (
-        <PageLayout title={'Lista de Exemplos'} actions={[]}>
-            <SearchDocField
-                api={userprofileApi}
-                subscribe={'getListOfusers'}
-                getOptionLabel={(doc) => doc.username || 'error'}
-                sort={{ username: 1 }}
-                textToQueryFilter={(textoPesquisa) => {
-                    textoPesquisa = textoPesquisa.replace(/[+[\\?()*]/g, '\\$&');
-                    return { username: new RegExp(textoPesquisa, 'i') };
-                }}
-                autocompleteOptions={{ noOptionsText: 'Não encontrado' }}
-                name={'userId'}
-                label={'Pesquisar com SearchDocField'}
-                onChange={handleSearchDocChange}
-                placeholder={'Todos'}
-                showAll={false}
-                key={'SearchDocKey'}
-            />
-
-            {!isMobile && (
-                <ToggleField
-                    label={'Habilitar ComplexTable'}
-                    value={viewComplexTable}
-                    onChange={(evt: { target: { value: boolean } }) => {
-                        console.log('evt', evt, evt.target);
-                        setViewComplexTable(evt.target.value);
-                    }}
+        <PageLayout title={'Tarefas'} actions={[]}>
+            <>
+                <TextField
+                    name={'pesquisar'}
+                    label={'Pesquisar'}
+                    value={text}
+                    onChange={change}
+                    placeholder="Digite aqui o que deseja pesquisa..."
+                    action={{ icon: 'search', onClick: click }}
+                    sx={{ width: 300 }}
                 />
-            )}
-            {(!viewComplexTable || isMobile) && (
-                <>
-                    <TextField
-                        name={'pesquisar'}
-                        label={'Pesquisar'}
-                        value={text}
-                        onChange={change}
-                        onKeyPress={keyPress}
-                        placeholder="Digite aqui o que deseja pesquisa..."
-                        action={{ icon: 'search', onClick: click }}
-                    />
 
-                    <SimpleTable
-                        schema={_.pick(
-                            {
-                                ...toDosApi.schema,
-                                nomeUsuario: { type: String, label: 'Criado por' },
-                            },
-                            ['image', 'title', 'description', 'nomeUsuario']
-                        )}
-                        data={toDoss}
-                        onClick={onClick}
-                        actions={[{ icon: <Delete />, id: 'delete', onClick: callRemove }]}
-                    />
-                </>
-            )}
+                <Box>
+                    <Accordion>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="panel1a-header"
+                        >
+                            <Typography>Não concluídas ({toDoss.length})</Typography>
+                        </AccordionSummary>
+                        {toDoss.map((task, index) => {
+                            return (
+                                <AccordionDetails
+                                    key={index}
+                                    onClick={() => {
+                                        showModal({
+                                            title: 'Tarefa',
+                                            url: `/tarefa/view/${task._id}`,
+                                        });
+                                    }}
+                                >
+                                    <ListItem sx={{ marginBottom: 2 }} key={index}>
+                                        <Box sx={{ display: 'flex', minWidth: 400 }}>
+                                            <CheckField
+                                                value={task.completion}
+                                                onChange={() => callChangeCompletion(task)}
+                                                key={index}
+                                            ></CheckField>
+                                            <ListItemAvatar>
+                                                <Avatar alt="Remy Sharp" src={task.image} />
+                                            </ListItemAvatar>
+                                            <ListItemText
+                                                primary={
+                                                    <Typography
+                                                        component="span"
+                                                        variant="body2"
+                                                        color="text.primary"
+                                                        sx={{
+                                                            textDecoration: task.completion
+                                                                ? 'line-through'
+                                                                : 'none',
+                                                        }}
+                                                    >
+                                                        {task.title}
+                                                    </Typography>
+                                                }
+                                                secondary={
+                                                    <React.Fragment>
+                                                        <>
+                                                            <Typography
+                                                                component="span"
+                                                                variant="body2"
+                                                                color="text.primary"
+                                                            >
+                                                                Criado por:{' '}
+                                                                {user._id === task.createdby
+                                                                    ? 'Você'
+                                                                    : task.nomeUsuario}
+                                                            </Typography>
+                                                        </>
+                                                    </React.Fragment>
+                                                }
+                                            />
+                                        </Box>
+                                        {user._id === task.createdby && (
+                                            <Box sx={{ display: 'flex', gap: 5 }}>
+                                                <Fab
+                                                    id={'edit'}
+                                                    onClick={(e) => onClick(e, task._id)}
+                                                    color={'primary'}
+                                                >
+                                                    <EditIcon />
+                                                </Fab>
+                                                <Fab
+                                                    id={'add'}
+                                                    onClick={(e) => callRemove(task)}
+                                                    color={'primary'}
+                                                >
+                                                    <DeleteIcon />
+                                                </Fab>
+                                            </Box>
+                                        )}
+                                    </ListItem>
+                                </AccordionDetails>
+                            );
+                        })}
+                    </Accordion>
+                </Box>
 
-            {!isMobile && viewComplexTable && (
-                <ComplexTable
-                    data={toDoss}
-                    schema={_.pick(
-                        {
-                            ...toDosApi.schema,
-                            nomeUsuario: { type: String, label: 'Criado por' },
-                        },
-                        ['image', 'title', 'description', 'nomeUsuario']
-                    )}
-                    onRowClick={(row) => navigate('/toDos/view/' + row.id)}
-                    searchPlaceholder={'Pesquisar exemplo'}
-                    onDelete={callRemove}
-                    onEdit={(row) => navigate('/toDos/edit/' + row._id)}
-                    toolbar={{
-                        selectColumns: true,
-                        exportTable: { csv: true, print: true },
-                        searchFilter: true,
-                    }}
-                    onFilterChange={onSearch}
-                    loading={loading}
-                />
-            )}
-
-            <div
-                style={{
-                    width: '100%',
-                    display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                }}
-            >
-                <TablePagination
-                    style={{ width: 'fit-content', overflow: 'unset' }}
-                    rowsPerPageOptions={[10, 25, 50, 100]}
-                    labelRowsPerPage={''}
-                    component="div"
-                    count={total || 0}
-                    rowsPerPage={pageProperties.pageSize}
-                    page={pageProperties.currentPage - 1}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
-                    SelectProps={{
-                        inputProps: { 'aria-label': 'rows per page' },
-                    }}
-                />
-            </div>
-
-            <RenderComPermissao recursos={[Recurso.EXAMPLE_CREATE]}>
+                <Box sx={{ marginTop: 20 }}>
+                    <Accordion>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="panel1a-header"
+                        >
+                            <Typography>concluídas ({toDossCompletion.length})</Typography>
+                        </AccordionSummary>
+                        {toDossCompletion.map((task, index) => {
+                            return (
+                                <AccordionDetails key={index}>
+                                    <ListItem sx={{ marginBottom: 2 }} key={index}>
+                                        <Box sx={{ display: 'flex', minWidth: 400 }}>
+                                            <CheckField
+                                                value={task.completion}
+                                                onChange={() => callChangeCompletion(task)}
+                                                key={index}
+                                            ></CheckField>
+                                            <ListItemAvatar>
+                                                <Avatar alt="Remy Sharp" src={task.image} />
+                                            </ListItemAvatar>
+                                            <ListItemText
+                                                primary={
+                                                    <Typography
+                                                        component="span"
+                                                        variant="body2"
+                                                        color="text.primary"
+                                                        sx={{
+                                                            textDecoration: task.completion
+                                                                ? 'line-through'
+                                                                : 'none',
+                                                        }}
+                                                    >
+                                                        {task.title}
+                                                    </Typography>
+                                                }
+                                                secondary={
+                                                    <React.Fragment>
+                                                        <>
+                                                            <Typography
+                                                                component="span"
+                                                                variant="body2"
+                                                                color="text.primary"
+                                                            >
+                                                                Criado por:{' '}
+                                                                {user._id === task.createdby
+                                                                    ? 'Você'
+                                                                    : task.nomeUsuario}
+                                                            </Typography>
+                                                        </>
+                                                    </React.Fragment>
+                                                }
+                                            />
+                                        </Box>
+                                        {user._id === task.createdby && (
+                                            <Box sx={{ display: 'flex', gap: 5 }}>
+                                                <Fab
+                                                    id={'edit'}
+                                                    onClick={(e) => onClick(e, task._id)}
+                                                    color={'primary'}
+                                                >
+                                                    <EditIcon />
+                                                </Fab>
+                                                <Fab
+                                                    id={'add'}
+                                                    onClick={(e) => callRemove(task)}
+                                                    color={'primary'}
+                                                >
+                                                    <DeleteIcon />
+                                                </Fab>
+                                            </Box>
+                                        )}
+                                    </ListItem>
+                                </AccordionDetails>
+                            );
+                        })}
+                    </Accordion>
+                </Box>
+            </>
+            <RenderComPermissao recursos={[Recurso.TODOS_CREATE]}>
                 <div
                     style={{
                         position: 'fixed',
@@ -231,7 +302,7 @@ const ToDosList = (props: IToDosList) => {
                 >
                     <Fab
                         id={'add'}
-                        onClick={() => navigate(`/toDos/create/${idToDos}`)}
+                        onClick={() => navigate(`/tarefa/create/${idToDos}`)}
                         color={'primary'}
                     >
                         <Add />
@@ -245,9 +316,22 @@ const ToDosList = (props: IToDosList) => {
 export const subscribeConfig = new ReactiveVar<IConfigList & { viewComplexTable: boolean }>({
     pageProperties: {
         currentPage: 1,
-        pageSize: 25,
+        pageSize: 4,
     },
-    sortProperties: { field: 'createdat', sortAscending: true },
+    sortProperties: { field: 'createdat', sortAscending: false },
+    filter: {},
+    searchBy: null,
+    viewComplexTable: false,
+});
+
+export const subscribeConfigCompletion = new ReactiveVar<
+    IConfigList & { viewComplexTable: boolean }
+>({
+    pageProperties: {
+        currentPage: 1,
+        pageSize: 4,
+    },
+    sortProperties: { field: 'createdat', sortAscending: false },
     filter: {},
     searchBy: null,
     viewComplexTable: false,
@@ -264,7 +348,7 @@ let onSearchToDosTyping: any;
 const viewComplexTable = new ReactiveVar(false);
 
 export const ToDosListContainer = withTracker((props: IDefaultContainerProps) => {
-    const { showNotification } = props;
+    const { showNotification, user } = props;
 
     //Reactive Search/Filter
     const config = subscribeConfig.get();
@@ -273,22 +357,28 @@ export const ToDosListContainer = withTracker((props: IDefaultContainerProps) =>
     };
     toDosSearch.setActualConfig(config);
 
-    //Subscribe parameters
     const filter = { ...config.filter };
-    // const filter = filtroPag;
-    const limit = config.pageProperties.pageSize;
-    const skip = (config.pageProperties.currentPage - 1) * config.pageProperties.pageSize;
 
     //Collection Subscribe
-    const subHandle = toDosApi.subscribe('toDosList', filter, {
-        sort,
-        limit,
-        skip,
-    });
-    const toDoss = subHandle?.ready() ? toDosApi.find(filter, { sort }).fetch() : [];
+    const subHandle = toDosApi.subscribe('toDosList', { ...filter });
+
+    const toDoss = subHandle?.ready()
+        ? toDosApi.find({ ...filter, completion: false }, { createdat: -1, sort }).fetch()
+        : [];
+    const toDossCompletion = subHandle?.ready()
+        ? toDosApi
+              .find(
+                  { ...filter, completion: true },
+                  {
+                      sort,
+                  }
+              )
+              .fetch()
+        : [];
 
     return {
         toDoss,
+        toDossCompletion,
         loading: !!subHandle && !subHandle.ready(),
         remove: (doc: IToDos) => {
             toDosApi.remove(doc, (e: IMeteorError) => {
@@ -310,6 +400,48 @@ export const ToDosListContainer = withTracker((props: IDefaultContainerProps) =>
                 }
             });
         },
+        changeCompletion: (doc: { _id: string; completion: boolean }, _callback: () => void) => {
+            toDosApi.callMethod('changeCompletion', doc, (e: IMeteorError, r: string) => {
+                if (!e) {
+                    showNotification &&
+                        showNotification({
+                            type: 'success',
+                            title: 'Operação realizada!',
+                            description: `O exemplo foi${
+                                doc.completion ? '' : ' retirado do'
+                            } completado com sucesso!`,
+                        });
+                } else {
+                    showNotification &&
+                        showNotification({
+                            type: 'warning',
+                            title: 'Operação não realizada!',
+                            description: `Erro ao realizar a operação: ${e.reason}`,
+                        });
+                }
+            });
+        },
+        save: (doc: IToDos, _callback: () => void) => {
+            toDosApi['update'](doc, (e: IMeteorError, r: string) => {
+                if (!e) {
+                    showNotification &&
+                        showNotification({
+                            type: 'success',
+                            title: 'Operação realizada!',
+                            description: `O exemplo foi ${
+                                doc.completion ? '' : 'retirado do'
+                            } completado com sucesso!`,
+                        });
+                } else {
+                    showNotification &&
+                        showNotification({
+                            type: 'warning',
+                            title: 'Operação não realizada!',
+                            description: `Erro ao realizar a operação: ${e.reason}`,
+                        });
+                }
+            });
+        },
         viewComplexTable: viewComplexTable.get(),
         setViewComplexTable: (enableComplexTable: boolean) =>
             viewComplexTable.set(enableComplexTable),
@@ -322,7 +454,7 @@ export const ToDosListContainer = withTracker((props: IDefaultContainerProps) =>
                 toDosSearch.onSearch(...params);
             }, 1000);
         },
-        total: subHandle ? subHandle.total : toDoss.length,
+        total: subHandle ? subHandle.total : toDos.length,
         pageProperties: config.pageProperties,
         filter,
         sort,

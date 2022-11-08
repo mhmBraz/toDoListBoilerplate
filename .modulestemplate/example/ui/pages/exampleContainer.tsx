@@ -4,7 +4,7 @@ import { ExampleDetailContainer } from './exampleDetail';
 import { IDefaultContainerProps } from '/imports/typings/BoilerplateDefaultTypings';
 import { useParams } from 'react-router-dom';
 
-export default (props: IDefaultContainerProps) => {
+export default (props: IDefaultContainerProps) => {    
     const validState = ['view', 'edit', 'create'];
 
     let { screenState, exampleId } = useParams();
@@ -12,7 +12,7 @@ export default (props: IDefaultContainerProps) => {
     const state = screenState ? screenState : props.screenState;
 
     const id = exampleId ? exampleId : props.id;
-
+    
     if (!!state && validState.indexOf(state) !== -1) {
         if (state === 'view' && !!id) {
             return <ExampleDetailContainer {...props} screenState={state} id={id} />;

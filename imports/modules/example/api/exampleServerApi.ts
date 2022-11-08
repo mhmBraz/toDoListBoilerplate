@@ -4,8 +4,7 @@ import { exampleSch, IExample } from './exampleSch';
 import { userprofileServerApi } from '/imports/userprofile/api/UserProfileServerApi';
 import { ProductServerBase } from '/imports/api/productServerBase';
 import { IContext } from '/imports/typings/IContext';
-import { check } from 'meteor/check';
-import { TaskAlt } from '@mui/icons-material';
+import { Meteor } from 'meteor/meteor';
 // endregion
 
 class ExampleServerApi extends ProductServerBase<IExample> {
@@ -19,7 +18,6 @@ class ExampleServerApi extends ProductServerBase<IExample> {
         this.addTransformedPublication(
             'exampleList',
             (filter = {}, options = {}) => {
-                console.log(options);
                 
                 return this.defaultListCollectionPublication(filter, {
                     ...options,
@@ -73,10 +71,17 @@ class ExampleServerApi extends ProductServerBase<IExample> {
 
     serverChangeCompletion = (doc: { id: string; completion: boolean }, context: IContext) => {
 
-        let task : IExample = this.findOne({ _id: doc.id });
-        
+        const { user } = context
+        let task: IExample = this.findOne({ _id: doc.id });
+
+        if (user._id !== task.createdby) {
+            throw new Meteor.Error(
+                'Você não tem permissão para concluir a tarefa, somente o usuário que a criou'
+            );
+        }
+
         task.completion = doc.completion
-        
+
         return this.serverUpdate({ _id: task._id, ...task }, context);
     }
 }

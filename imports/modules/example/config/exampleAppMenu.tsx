@@ -4,8 +4,8 @@ import { IAppMenu } from '/imports/modules/modulesTypings';
 
 export const exampleMenuItemList: (IAppMenu | null)[] = [
     {
-        path: '/tarefas',
-        name: 'Tarefas',
+        path: '/tarsdsdefas',
+        name: 'tarsdsdefas',
         icon: <Class />,
     },
 ];

@@ -29,6 +29,7 @@ const appLayoutMenuStyle = {
     containerHomeIconButton: {
         display: 'flex',
         alignItems: 'center',
+        cursor: 'pointer'
     },
     routerSwitch: {
         width: '100%',
