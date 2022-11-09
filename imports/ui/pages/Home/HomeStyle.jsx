@@ -17,25 +17,11 @@
 import { isMobile } from '/imports/libs/deviceVerify';
 
 const homeStyles = {
-    title: {
-        fontSize: isMobile ? '20px' : '30px',
-        paddingTop: isMobile ? '20px' : '20px',
-        paddingBottom: isMobile ? '20px' : '20px',
-        fontWeight: isMobile ? '500' : '500',
-    },
-    subTitle: {
-        fontSize: isMobile ? '15px' : '25px',
-        paddingTop: isMobile ? '10px' : '10px',
-        paddingBottom: isMobile ? '20px' : '20px',
-        fontWeight: isMobile ? '300' : '300',
-        textAlign: 'justify',
-        textJustify: 'inter-word',
-    },
-    containerHome: {
-        marginTop: '2em',
-        maxWidth: '100%',
-        maxHeight: '100%',
-    },
+    divTasks: { minHeight: 350 },
+    listItem: { marginBottom: 2 },
+    BoxItem: { display: 'flex', marginRight: 50},
+    BoxMyTasks: { display: 'flex', justifyContent: 'center' },
+    BoxMyTasksButton: { marginRight: 10 },
 };
 
 export { homeStyles };

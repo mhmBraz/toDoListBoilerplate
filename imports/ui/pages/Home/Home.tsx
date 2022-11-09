@@ -17,6 +17,7 @@ import CheckField from '/imports/ui/components/SimpleFormFields/CheckBoxField/Ch
 import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '../../layouts/pageLayout';
+import { homeStyles } from './HomeStyle';
 
 const Home = (props: IDefaultContainerProps) => {
     const navigate = useNavigate();
@@ -90,7 +91,6 @@ const Home = (props: IDefaultContainerProps) => {
             <Box>
                 <Box>
                     <h4>
-                        {' '}
                         Seus projetos muito mais organizados. Veja as tarefas adicionadas por seu
                         time, por você e para você!
                     </h4>
@@ -99,15 +99,15 @@ const Home = (props: IDefaultContainerProps) => {
             <Box>
                 <h4>Atividades recentes</h4>
             </Box>
-            <Box sx={{ minHeight: 350 }}>
+            <Box style={homeStyles.divTasks}>
                 {tasks &&
                     tasks.map((task, index) => {
                         return (
-                            <ListItem sx={{ marginBottom: 2 }} key={index}>
-                                <Box sx={{ display: 'flex', minWidth: 400 }}>
+                            <ListItem style={homeStyles.listItem} key={index}>
+                                <Box style={homeStyles.BoxItem}>
                                     {user?._id === task.createdby && (
                                         <CheckField
-                                            value={task.completion}
+                                            value={task.completion || ''}
                                             onChange={() => callChangeCompletion(task)}
                                             key={index}
                                         ></CheckField>
@@ -148,6 +148,7 @@ const Home = (props: IDefaultContainerProps) => {
                                         }
                                     />
                                 </Box>
+
                                 {user._id === task.createdby && (
                                     <Box>
                                         <Fab
@@ -163,10 +164,10 @@ const Home = (props: IDefaultContainerProps) => {
                         );
                     })}
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Box style={homeStyles.BoxMyTasks}>
                 <Button
                     key={'b1'}
-                    style={{ marginRight: 10 }}
+                    style={homeStyles.BoxMyTasks}
                     onClick={() => navigate(`/minhas-tarefas`)}
                     color={'secondary'}
                     variant="contained"
