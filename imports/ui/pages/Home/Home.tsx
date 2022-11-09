@@ -31,20 +31,12 @@ const Home = (props: IDefaultContainerProps) => {
             {},
             {
                 createdat: false,
+                sort,
+                limit: 4,
             }
         );
 
-        const tasks = subHandle?.ready()
-            ? toDosApi
-                  .find(
-                      {},
-                      {
-                          sort,
-                          limit: 4,
-                      }
-                  )
-                  .fetch()
-            : [];
+        const tasks = subHandle?.ready() ? toDosApi.find({}, {}).fetch() : [];
 
         return tasks;
     });
