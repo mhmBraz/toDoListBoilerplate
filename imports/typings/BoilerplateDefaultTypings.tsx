@@ -16,6 +16,7 @@ export interface IBoilerplateShowMethods {
     ) => void;
     showDrawer?: (options?: Object) => void;
     showWindow?: (options?: Object) => void;
+    closeComponent?: (options?: Object) => void;
 }
 export interface IDefaultContainerProps extends IBoilerplateShowMethods {
     navigate: NavigateFunction;

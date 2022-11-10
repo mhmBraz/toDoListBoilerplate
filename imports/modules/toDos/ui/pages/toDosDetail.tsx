@@ -32,7 +32,7 @@ interface IToDosDetail extends IDefaultDetailProps {
 }
 
 const ToDosDetail = (props: IToDosDetail) => {
-    const { isPrintView, screenState, loading, toDosDoc, save, navigate } = props;
+    const { isPrintView, screenState, loading, toDosDoc, save, navigate, closeComponent } = props;
 
     const theme = useTheme();
 
@@ -77,6 +77,15 @@ const ToDosDetail = (props: IToDosDetail) => {
                 ),
             ]}
         >
+            <Button
+                key={'b1'}
+                style={{ marginRight: 10 }}
+                onClick={closeComponent}
+                color={'secondary'}
+                variant="contained"
+            >
+                Fechar
+            </Button>
             <SimpleForm
                 key={'ExempleDetail-SimpleFormKEY'}
                 mode={screenState}
@@ -204,12 +213,13 @@ const ToDosDetail = (props: IToDosDetail) => {
 interface IToDosDetailContainer extends IDefaultContainerProps {}
 
 export const ToDosDetailContainer = withTracker((props: IToDosDetailContainer) => {
-    const { screenState, id, navigate, showNotification } = props;
+    const { screenState, id, navigate, showNotification, closeComponent } = props;
 
     const subHandle = !!id ? toDosApi.subscribe('toDosDetail', { _id: id }) : null;
     let toDosDoc = id && subHandle?.ready() ? toDosApi.findOne({ _id: id }) : {};
 
     return {
+        closeComponent,
         screenState,
         toDosDoc,
         save: (doc: IToDos, _callback: () => void) => {
