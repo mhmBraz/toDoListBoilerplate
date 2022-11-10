@@ -24,8 +24,14 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
                 const user = getUser();
                 
                 return this.defaultListCollectionPublication({
-                    ...filter,
-                    $or: [{ $and: [{ private: true }, { createdby: user._id }] }, { private: false }]
+                    $and: [
+                        {
+                            $or: [{ $and: [{ private: true }, { createdby: user._id }] }, { private: false }]
+                        },
+                        {
+                            ...filter,
+                        },
+                    ],
                 }, {
                     ...options,
                     projection: { image: 1, title: 1, description: 1, createdby: 1, completion: 1, type: 1, createdat: 1, private: 1 },
