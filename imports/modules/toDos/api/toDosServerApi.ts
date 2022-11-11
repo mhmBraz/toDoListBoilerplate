@@ -22,15 +22,13 @@ class ToDosServerApi extends ProductServerBase<IToDos> {
             'toDosList',
             (filter = {}, options = {}) => {
                 const user = getUser();
-                
+
                 return this.defaultListCollectionPublication({
                     $and: [
                         {
                             $or: [{ $and: [{ private: true }, { createdby: user._id }] }, { private: false }]
                         },
-                        {
-                            ...filter,
-                        },
+                        filter
                     ],
                 }, {
                     ...options,

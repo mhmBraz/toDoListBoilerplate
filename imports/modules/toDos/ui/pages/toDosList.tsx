@@ -261,94 +261,94 @@ const ToDosList = (props: IToDosList) => {
                             if (task.completion) {
                                 return (
                                     <AccordionDetails key={index}>
-                                    <ListItem
-                                        sx={{
-                                            marginBottom: 2,
-                                            display: 'flex',
-                                            flexWrap: 'wrap',
-                                            gap: 10,
-                                        }}
-                                        key={index}
-                                    >
-                                        <Box sx={{ display: 'flex', gap: 2 }}>
-                                            <CheckField
-                                                value={task.completion}
-                                                onChange={() => callChangeCompletion(task)}
-                                                key={index}
-                                            ></CheckField>
-                                            <Box
-                                                sx={{ display: 'flex', maxWidth: 300 }}
-                                                onClick={() => {
-                                                    showModal({
-                                                        title: 'Tarefa',
-                                                        url: `/tarefa/view/${task._id}`,
-                                                    });
-                                                }}
-                                            >
-                                                <ListItemAvatar>
-                                                    <Avatar alt="Remy Sharp" src={task.image} />
-                                                </ListItemAvatar>
-                                                <ListItemText
-                                                    primary={
-                                                        <Typography
-                                                            component="span"
-                                                            variant="body2"
-                                                            color="text.primary"
-                                                            sx={{
-                                                                textDecoration: task.completion
-                                                                    ? 'line-through'
-                                                                    : 'none',
-                                                            }}
-                                                        >
-                                                            <Box
-                                                                sx={{
-                                                                    overflow: 'hidden',
-                                                                    textOverflow: 'ellipsis',
-                                                                    whiteSpace: 'nowrap',
-                                                                }}
-                                                            >
-                                                                {task.title}
-                                                            </Box>
-                                                            {task.private && <LockIcon />}
-                                                        </Typography>
-                                                    }
-                                                    secondary={
-                                                        <>
+                                        <ListItem
+                                            sx={{
+                                                marginBottom: 2,
+                                                display: 'flex',
+                                                flexWrap: 'wrap',
+                                                gap: 10,
+                                            }}
+                                            key={index}
+                                        >
+                                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                                <CheckField
+                                                    value={task.completion}
+                                                    onChange={() => callChangeCompletion(task)}
+                                                    key={index}
+                                                ></CheckField>
+                                                <Box
+                                                    sx={{ display: 'flex', maxWidth: 300 }}
+                                                    onClick={() => {
+                                                        showModal({
+                                                            title: 'Tarefa',
+                                                            url: `/tarefa/view/${task._id}`,
+                                                        });
+                                                    }}
+                                                >
+                                                    <ListItemAvatar>
+                                                        <Avatar alt="Remy Sharp" src={task.image} />
+                                                    </ListItemAvatar>
+                                                    <ListItemText
+                                                        primary={
                                                             <Typography
                                                                 component="span"
                                                                 variant="body2"
                                                                 color="text.primary"
+                                                                sx={{
+                                                                    textDecoration: task.completion
+                                                                        ? 'line-through'
+                                                                        : 'none',
+                                                                }}
                                                             >
-                                                                Criado por:{' '}
-                                                                {user._id === task.createdby
-                                                                    ? 'Você'
-                                                                    : task.nomeUsuario}
+                                                                <Box
+                                                                    sx={{
+                                                                        overflow: 'hidden',
+                                                                        textOverflow: 'ellipsis',
+                                                                        whiteSpace: 'nowrap',
+                                                                    }}
+                                                                >
+                                                                    {task.title}
+                                                                </Box>
+                                                                {task.private && <LockIcon />}
                                                             </Typography>
-                                                        </>
-                                                    }
-                                                />
+                                                        }
+                                                        secondary={
+                                                            <>
+                                                                <Typography
+                                                                    component="span"
+                                                                    variant="body2"
+                                                                    color="text.primary"
+                                                                >
+                                                                    Criado por:{' '}
+                                                                    {user._id === task.createdby
+                                                                        ? 'Você'
+                                                                        : task.nomeUsuario}
+                                                                </Typography>
+                                                            </>
+                                                        }
+                                                    />
+                                                </Box>
                                             </Box>
-                                        </Box>
-                                        {user._id === task.createdby && (
-                                            <Box sx={{ display: 'flex', gap: 5 }}>
-                                                <Fab
-                                                    id={'edit'}
-                                                    onClick={(e) => onClick(e, task._id)}
-                                                    color={'primary'}
-                                                >
-                                                    <EditIcon />
-                                                </Fab>
-                                                <Fab
-                                                    id={'add'}
-                                                    onClick={(e) => callRemove(task)}
-                                                    color={'primary'}
-                                                >
-                                                    <DeleteIcon />
-                                                </Fab>
-                                            </Box>
-                                        )}
-                                    </ListItem>
-                                </AccordionDetails> 
+                                            {user._id === task.createdby && (
+                                                <Box sx={{ display: 'flex', gap: 5 }}>
+                                                    <Fab
+                                                        id={'edit'}
+                                                        onClick={(e) => onClick(e, task._id)}
+                                                        color={'primary'}
+                                                    >
+                                                        <EditIcon />
+                                                    </Fab>
+                                                    <Fab
+                                                        id={'add'}
+                                                        onClick={(e) => callRemove(task)}
+                                                        color={'primary'}
+                                                    >
+                                                        <DeleteIcon />
+                                                    </Fab>
+                                                </Box>
+                                            )}
+                                        </ListItem>
+                                    </AccordionDetails>
                                 );
                             }
                         })}
@@ -451,7 +451,7 @@ export const ToDosListContainer = withTracker((props: IDefaultContainerProps) =>
 
     const subHandle = toDosApi.subscribe(
         'toDosList',
-        { ...filter },
+        { ...filter, $or: [{ createdby: user._id }] },
         {
             sort,
             limit,
