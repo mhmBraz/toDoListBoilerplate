@@ -138,7 +138,7 @@ const ToDosList = (props: IToDosList) => {
                     onChange={change}
                     placeholder="Digite aqui o que deseja pesquisa..."
                     action={{ icon: 'search', onClick: click }}
-                    sx={{ width: 300 }}
+                    sx={toDosListStyle.textFieldPesquisar}
                 />
 
                 <Box>
@@ -154,23 +154,15 @@ const ToDosList = (props: IToDosList) => {
                             if (!task.completion) {
                                 return (
                                     <AccordionDetails key={index}>
-                                        <ListItem
-                                            sx={{
-                                                marginBottom: 2,
-                                                display: 'flex',
-                                                flexWrap: 'wrap',
-                                                gap: 10,
-                                            }}
-                                            key={index}
-                                        >
-                                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                        <ListItem sx={toDosListStyle.listItems} key={index}>
+                                            <Box sx={toDosListStyle.boxListItem}>
                                                 <CheckField
                                                     value={task.completion}
                                                     onChange={() => callChangeCompletion(task)}
                                                     key={index}
                                                 ></CheckField>
                                                 <Box
-                                                    sx={{ display: 'flex', maxWidth: 300 }}
+                                                    sx={toDosListStyle.boxOpenModal}
                                                     onClick={() => {
                                                         showModal({
                                                             title: 'Tarefa',
@@ -194,11 +186,7 @@ const ToDosList = (props: IToDosList) => {
                                                                 }}
                                                             >
                                                                 <Box
-                                                                    sx={{
-                                                                        overflow: 'hidden',
-                                                                        textOverflow: 'ellipsis',
-                                                                        whiteSpace: 'nowrap',
-                                                                    }}
+                                                                    sx={toDosListStyle.boxTaskTitle}
                                                                 >
                                                                     {task.title}
                                                                 </Box>
@@ -223,7 +211,7 @@ const ToDosList = (props: IToDosList) => {
                                                 </Box>
                                             </Box>
                                             {user._id === task.createdby && (
-                                                <Box sx={{ display: 'flex', gap: 5 }}>
+                                                <Box sx={toDosListStyle.boxTaskEdit}>
                                                     <Fab
                                                         id={'edit'}
                                                         onClick={(e) => onClick(e, task._id)}
@@ -248,7 +236,7 @@ const ToDosList = (props: IToDosList) => {
                     </Accordion>
                 </Box>
 
-                <Box sx={{ marginTop: 20 }}>
+                <Box sx={toDosListStyle.boxTaskCompletion}>
                     <Accordion>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
@@ -261,23 +249,15 @@ const ToDosList = (props: IToDosList) => {
                             if (task.completion) {
                                 return (
                                     <AccordionDetails key={index}>
-                                        <ListItem
-                                            sx={{
-                                                marginBottom: 2,
-                                                display: 'flex',
-                                                flexWrap: 'wrap',
-                                                gap: 10,
-                                            }}
-                                            key={index}
-                                        >
-                                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                        <ListItem sx={toDosListStyle.listItems} key={index}>
+                                            <Box sx={toDosListStyle.boxListItem}>
                                                 <CheckField
                                                     value={task.completion}
                                                     onChange={() => callChangeCompletion(task)}
                                                     key={index}
                                                 ></CheckField>
                                                 <Box
-                                                    sx={{ display: 'flex', maxWidth: 300 }}
+                                                    sx={toDosListStyle.boxOpenModal}
                                                     onClick={() => {
                                                         showModal({
                                                             title: 'Tarefa',
@@ -301,11 +281,7 @@ const ToDosList = (props: IToDosList) => {
                                                                 }}
                                                             >
                                                                 <Box
-                                                                    sx={{
-                                                                        overflow: 'hidden',
-                                                                        textOverflow: 'ellipsis',
-                                                                        whiteSpace: 'nowrap',
-                                                                    }}
+                                                                    sx={toDosListStyle.boxTaskTitle}
                                                                 >
                                                                     {task.title}
                                                                 </Box>
@@ -330,7 +306,7 @@ const ToDosList = (props: IToDosList) => {
                                                 </Box>
                                             </Box>
                                             {user._id === task.createdby && (
-                                                <Box sx={{ display: 'flex', gap: 5 }}>
+                                                <Box sx={toDosListStyle.boxTaskEdit}>
                                                     <Fab
                                                         id={'edit'}
                                                         onClick={(e) => onClick(e, task._id)}
@@ -355,11 +331,10 @@ const ToDosList = (props: IToDosList) => {
                     </Accordion>
                 </Box>
 
-                <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 5 }}>
+                <Box sx={toDosListStyle.pagination}>
                     <Fab
                         disabled={page === 1}
                         onClick={handleClickRowsPerPage}
-                        sx={{ marginRight: 1 }}
                         id="backPagination"
                         color="primary"
                         aria-label="add"
