@@ -52,6 +52,7 @@ const ToDosDetail = (props: IToDosDetail) => {
     console.log('aqui');
 
     if (
+        screenState !== 'create' &&   
         !!Object.keys(toDosDoc).length &&
         !!Object.keys(user).length &&
         toDosDoc.createdby !== user._id
