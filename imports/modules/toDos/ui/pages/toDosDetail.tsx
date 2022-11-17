@@ -101,15 +101,18 @@ const ToDosDetail = (props: IToDosDetail) => {
                 ),
             ]}
         >
-            <Button
-                key={'b1'}
-                style={{ marginRight: 10 }}
-                onClick={closeComponent}
-                color={'secondary'}
-                variant="contained"
-            >
-                Fechar
-            </Button>
+            {closeComponent && (
+                <Button
+                    key={'b1'}
+                    style={{ marginRight: 10 }}
+                    onClick={closeComponent}
+                    color={'secondary'}
+                    variant="contained"
+                >
+                    Fechar
+                </Button>
+            )}
+
             <SimpleForm
                 key={'ExempleDetail-SimpleFormKEY'}
                 mode={screenState}
