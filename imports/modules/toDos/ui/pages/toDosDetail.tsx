@@ -32,13 +32,37 @@ interface IToDosDetail extends IDefaultDetailProps {
 }
 
 const ToDosDetail = (props: IToDosDetail) => {
-    const { isPrintView, screenState, loading, toDosDoc, save, navigate, closeComponent } = props;
-
+    const {
+        isPrintView,
+        screenState,
+        loading,
+        toDosDoc,
+        save,
+        navigate,
+        closeComponent,
+        user,
+        showNotification,
+    } = props;
     const theme = useTheme();
 
     const handleSubmit = (doc: IToDos) => {
         save(doc);
     };
+
+    console.log('aqui');
+
+    if (
+        !!Object.keys(toDosDoc).length &&
+        !!Object.keys(user).length &&
+        toDosDoc.createdby !== user._id
+    ) {
+        showNotification({
+            type: 'warning',
+            title: 'Operação não realizada!',
+            description: 'Você não tem permissão de alterar/ver esse item',
+        });
+        navigate('/minhas-tarefas');
+    }
 
     return (
         <PageLayout
@@ -217,7 +241,6 @@ export const ToDosDetailContainer = withTracker((props: IToDosDetailContainer) =
 
     const subHandle = !!id ? toDosApi.subscribe('toDosDetail', { _id: id }) : null;
     let toDosDoc = id && subHandle?.ready() ? toDosApi.findOne({ _id: id }) : {};
-
     return {
         closeComponent,
         screenState,
